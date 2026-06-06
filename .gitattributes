@@ -1,0 +1,22 @@
+# Deterministic line endings regardless of the cloner's core.autocrlf.
+#
+# Without this, Git for Windows' common `core.autocrlf=true` default would
+# check start.sh out with CRLF endings — which breaks it under bash/WSL/Git
+# Bash ("bad interpreter", "$'\r': command not found").
+* text=auto
+
+# POSIX-side files must stay LF everywhere.
+*.sh    text eol=lf
+*.py    text eol=lf
+*.md    text eol=lf
+*.ipynb text eol=lf
+*.svg   text eol=lf
+*.txt   text eol=lf
+
+# Windows-side launchers are stored with CRLF endings VERBATIM (-text = no
+# conversion). cmd.exe is unreliable with LF-only batch files, and an
+# eol=crlf attribute only fixes `git checkout` — raw-file downloads from
+# GitHub serve the stored blob as-is, so the bytes themselves must be CRLF.
+*.ps1   -text
+*.cmd   -text
+*.bat   -text

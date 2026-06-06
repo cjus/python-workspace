@@ -3,8 +3,8 @@
 A ready-to-use **JupyterLab + AI** workspace for learning Python development —
 local-first, with a built-in AI tutor.
 
-- **One command to start**: `./start.sh` creates the environment, installs
-  everything, and opens JupyterLab.
+- **One command to start**: `./start.sh` (macOS/Linux) or `.\start.cmd` (Windows)
+  creates the environment, installs everything, and opens JupyterLab.
 - **AI that runs on your machine**: chat and notebook AI are powered by
   [Jupyter AI](https://jupyter-ai.readthedocs.io/en/v3/) v3 with a local
   [Ollama](https://ollama.com) model by default — no API keys, no cost, and
@@ -23,19 +23,26 @@ local-first, with a built-in AI tutor.
    [SETUP.md](SETUP.md#using-openrouter-instead-of-ollama)):
 
    ```bash
-   ollama pull gemma4:26b-mlx     # repo default (needs ≥36 GB unified memory)
-   # lighter machines: ollama pull llama3.2
+   # macOS (Apple Silicon):
+   ollama pull gemma4:26b-mlx     # repo default (MLX build; needs ≥36 GB unified memory)
+
+   # Windows / Linux (MLX builds are Apple-only — use a standard tag):
+   ollama pull gemma4:12b         # ~8 GB; fits 16 GB machines
+
+   # lighter machines on any OS: ollama pull llama3.2
    ```
 
 2. Launch:
 
    ```bash
-   ./start.sh
+   ./start.sh      # macOS / Linux
+   .\start.cmd     # Windows (PowerShell or cmd; double-clicking it works too)
    ```
 
 3. In JupyterLab, open **`welcome.ipynb`** and follow the tour. The first time,
    pick your model in **Settings → Jupyternaut Settings** (e.g.
-   `ollama/gemma4:26b-mlx`).
+   `ollama/gemma4:26b-mlx` on Apple Silicon, `ollama/gemma4:12b` on
+   Windows/Linux).
 
 The full environment guide — models by machine size, memory tuning, switching
 between Ollama and OpenRouter, `%%ai` magics, troubleshooting — is in
@@ -84,6 +91,7 @@ raise the difficulty.
 
    ```python
    %load_ext jupyter_ai_magic_commands
+   # macOS (Apple Silicon); Windows/Linux use: %ai alias gemma ollama/gemma4:12b
    %ai alias gemma ollama/gemma4:26b-mlx
 
    %%ai gemma -f code
@@ -105,7 +113,8 @@ documented in **[docs/PERSONAS.md](docs/PERSONAS.md)**.
 
 | Path                         | Purpose                                                        |
 | ---------------------------- | -------------------------------------------------------------- |
-| `start.sh`                   | One-command launcher (venv, deps, kernel pinning, pre-flight checks) |
+| `start.sh`                   | One-command launcher for macOS/Linux (venv, deps, kernel pinning, pre-flight checks) |
+| `start.cmd` / `start.ps1`    | The same launcher for Windows (`start.cmd` is the entry point)  |
 | `SETUP.md`                   | Full environment guide (Ollama, OpenRouter, models, tuning)     |
 | `welcome.ipynb`              | Guided tour of the workspace                                    |
 | `practice_template.ipynb`    | Template the Tutor scaffolds practice notebooks from            |
@@ -121,7 +130,8 @@ documented in **[docs/PERSONAS.md](docs/PERSONAS.md)**.
 Run the tests from the workspace venv:
 
 ```sh
-.venv/bin/python -m unittest discover -s tests
+.venv/bin/python -m unittest discover -s tests        # macOS / Linux
+.venv\Scripts\python -m unittest discover -s tests    # Windows
 ```
 
 ## License

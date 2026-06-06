@@ -18,6 +18,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 OLLAMA_HOST_URL="${OLLAMA_HOST:-http://127.0.0.1:11434}"
+# Ollama's OLLAMA_HOST convention allows a bare host:port (no scheme).
+case "$OLLAMA_HOST_URL" in
+  *://*) ;;
+  *) OLLAMA_HOST_URL="http://${OLLAMA_HOST_URL}" ;;
+esac
 
 # 1. Is Ollama running?
 if curl -sf "${OLLAMA_HOST_URL}/api/tags" >/dev/null 2>&1; then
@@ -65,7 +70,8 @@ VENV_PY="${PWD}/.venv/bin/python"
 if [ ! -f "$KERNEL_JSON" ] || ! grep -q "$VENV_PY" "$KERNEL_JSON"; then
   echo "Pinning Jupyter kernelspec to the venv interpreter..."
   .venv/bin/python -m ipykernel install --sys-prefix --name python3 \
-    --display-name "Python 3 (.venv)" >/dev/null 2>&1
+    --display-name "Python 3 (.venv)" >/dev/null 2>&1 \
+    || { echo "ERROR: failed to pin the Jupyter kernelspec to the venv interpreter."; exit 1; }
 fi
 
 # Jupyter AI v3 ships no model agent by default; the Ollama/OpenRouter chat needs

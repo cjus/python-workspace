@@ -49,16 +49,23 @@ A few things to know before you start:
 | `requirements.txt`     | Python dependencies (Jupyter AI v3 with the `jupyternaut` + `magics` extras, JupyterLab, the data toolkit) |
 | `requirements.lock.txt`| Fully pinned versions captured from the working environment        |
 | `jupyter_ai_config.py` | Optional per-model parameters (e.g. the Ollama `num_ctx` cap)      |
-| `start.sh`             | Launcher (checks Ollama, or continues for OpenRouter if a key is set, then starts Lab) |
-| `.venv/`               | Local virtualenv (git-ignored; created on first install)          |
+| `start.sh`             | Launcher for macOS/Linux (checks Ollama, or continues for OpenRouter if a key is set, then starts Lab) |
+| `start.cmd` + `start.ps1` | The same launcher for Windows — run `start.cmd` (it invokes `start.ps1` in a way that works under Windows' default script-execution policy) |
+| `.venv/`               | Local virtualenv (git-ignored; created on first install). On Windows the interpreter/activate scripts live under `.venv\Scripts\`, not `.venv/bin/` |
 
 ---
 
 ## Prerequisites
 
-1. **Python 3.9+** (this environment was built with 3.12).
-2. **Ollama** installed and running. Install from <https://ollama.com/download>, then
-   start the server (it usually runs automatically after install):
+1. **Python 3.9+** (this environment was built with 3.12). On Windows, install
+   from <https://www.python.org/downloads/> or the Microsoft Store — the `py`
+   launcher the Windows launcher prefers is included by default. (Careful: on a
+   machine without Python, typing `python` opens the Microsoft Store — that's a
+   Windows stub, not an install.)
+2. **Ollama** installed and running. Install from <https://ollama.com/download>
+   (Windows: a native app — `winget install Ollama.Ollama` also works), then
+   start the server (it usually runs automatically after install; on Windows it
+   autostarts as a tray app, so this step is normally unnecessary):
    ```bash
    ollama serve
    ```
@@ -76,19 +83,25 @@ A few things to know before you start:
 Jupyter AI references models by the name shown in `ollama list`.
 
 ```bash
-# Default chat model for this repo
+# Default chat model for this repo on macOS (Apple Silicon, MLX build)
 ollama pull gemma4:26b-mlx
 
-# An alternative, lighter chat model
+# Default on Windows / Linux (standard GGUF build)
+ollama pull gemma4:12b
+
+# An alternative, lighter chat model (any OS)
 ollama pull llama3.2
 
 # See what you have
 ollama list
 ```
 
-> **Default model:** this repo defaults to **`gemma4:26b-mlx`**, a 26B model in
-> Apple's MLX format (optimized for Apple Silicon). It needs a fair amount of
-> RAM/VRAM; on lighter machines swap in a smaller model from the
+> **Default model:** on Apple Silicon this repo defaults to **`gemma4:26b-mlx`**,
+> a 26B model in Apple's MLX format. **MLX builds (`*-mlx` tags) are
+> Apple-Silicon-only** — Ollama uses MLX as its Apple Silicon backend and
+> llama.cpp (GGUF) everywhere else, so on Windows/Linux pull a standard tag
+> instead: **`gemma4:12b`** is the repo's cross-platform default. On lighter
+> machines swap in a smaller model from the
 > [Ollama library](https://ollama.com/library) (e.g. `llama3.2`, `mistral`,
 > `qwen2.5`, `codellama`, `phi3`).
 
@@ -98,13 +111,24 @@ ollama list
 
 ### Local (Ollama) — pick by available memory
 
-On Apple Silicon the model shares **unified memory** with everything else, so
-match the model to the machine:
+**Apple Silicon (macOS).** The model shares **unified memory** with everything
+else, so match the model to the machine:
 
 | Machine memory      | Recommended model | Why                                            |
 | ------------------- | ----------------- | ---------------------------------------------- |
 | **≥ 36 GB**         | `gemma4:26b-mlx`  | 26B, Apple MLX format — the repo default; best quality the hardware can comfortably hold |
 | **< 36 GB** (e.g. 16 GB) | `gemma4:e4b`  | Smaller/lighter; runs well where 26B would be too tight |
+
+**Windows / Linux.** `*-mlx` tags won't run here — use the standard GGUF tags.
+Ollama runs them on CPU, NVIDIA (CUDA), or AMD (ROCm); size against your GPU
+VRAM (or system RAM if CPU-only), keeping roughly 1.5× the model's download
+size free:
+
+| Hardware                          | Recommended model       | Why                                  |
+| --------------------------------- | ----------------------- | ------------------------------------ |
+| **~16 GB RAM** or a ~8 GB GPU     | `gemma4:12b` (~7.6 GB)  | The repo's Windows/Linux default     |
+| **≥ 32 GB RAM** or a ≥ 24 GB GPU  | `gemma4:26b` (~18 GB)   | Best quality the hardware can hold   |
+| Older / low-memory machines       | `gemma4:e2b-it-qat` (~4.3 GB) or `llama3.2` | Ultra-light, still capable |
 
 Set the choice in Jupyternaut Settings (and, if you want, as the repo default —
 see [Switching models](#switching-models)).
@@ -133,22 +157,49 @@ are all readily available there too.
 Just use the launcher:
 
 ```bash
-./start.sh
+./start.sh     # macOS / Linux
+```
+
+```powershell
+.\start.cmd    # Windows (PowerShell or cmd; double-clicking it works too)
 ```
 
 On first run it creates `.venv` and installs the dependencies, then it verifies
 Ollama is reachable, lists your models, and opens JupyterLab. No separate install
 step is needed.
 
-> **OpenRouter:** `export OPENROUTER_API_KEY="sk-or-..."` before running
-> `./start.sh`. With that set, the launcher treats a missing Ollama server as a
-> warning instead of an error, so you can run OpenRouter-only. See
+> **Windows note:** run `start.cmd`, not `start.ps1` directly — Windows' default
+> *Restricted* execution policy blocks `.ps1` files, and the `.cmd` shim runs it
+> with a process-scoped bypass (your machine's policy is not changed). If you'd
+> rather invoke it yourself:
+> `powershell -NoProfile -ExecutionPolicy Bypass -File start.ps1`.
+
+> **OpenRouter:** set the key before running the launcher. With it set, the
+> launcher treats a missing Ollama server as a warning instead of an error, so
+> you can run OpenRouter-only. See
 > [Using OpenRouter instead of Ollama](#using-openrouter-instead-of-ollama).
+>
+> ```bash
+> export OPENROUTER_API_KEY="sk-or-..."   # macOS / Linux
+> ./start.sh
+> ```
+>
+> ```powershell
+> $env:OPENROUTER_API_KEY = "sk-or-..."   # Windows PowerShell
+> .\start.cmd
+> ```
+>
+> ```bat
+> set OPENROUTER_API_KEY=sk-or-...        # Windows cmd
+> start.cmd
+> ```
 
 ### Manual setup (optional)
 
 If you'd rather not use the launcher — or want the exact pinned versions — set up
-the venv yourself:
+the venv yourself.
+
+**macOS / Linux:**
 
 ```bash
 python3 -m venv .venv
@@ -157,6 +208,18 @@ pip install --upgrade pip
 pip install -r requirements.txt          # or requirements.lock.txt for pinned versions
 jupyter lab --config=jupyter_ai_config.py
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\Activate.ps1               # blocked? run first:  Set-ExecutionPolicy -Scope Process RemoteSigned
+python -m pip install --upgrade pip
+pip install -r requirements.txt          # or requirements.lock.txt for pinned versions
+jupyter lab --config=jupyter_ai_config.py
+```
+
+(In `cmd` use `.venv\Scripts\activate.bat` instead of `Activate.ps1`.)
 
 `requirements.txt` installs `jupyter-ai[jupyternaut,magics]` (the Jupyternaut
 agent for the chat + the `%%ai` notebook magics, both backed by LiteLLM) and
@@ -179,7 +242,8 @@ There are two ways to use Jupyter AI: the **chat (Jupyternaut persona)** and the
 2. The first time, configure the model: open **Settings → Jupyternaut Settings**
    and set the **Chat model**:
    - For Ollama, choose the `ollama/` provider and enter the model name, e.g.
-     **`ollama/gemma4:26b-mlx`** (any name from `ollama list`). No API key needed.
+     **`ollama/gemma4:26b-mlx`** on Apple Silicon or **`ollama/gemma4:12b`** on
+     Windows/Linux (any name from `ollama list`). No API key needed.
    - If Ollama runs on a non-default host/port, set the **`api_base`** field in
      the *Model parameters* section to your address, e.g.
      `http://localhost:11000`.
@@ -210,7 +274,8 @@ Load the extension once per kernel session:
 
 **Local Ollama models need an alias.** The `%%ai` cell magic only accepts models
 in LiteLLM's known-model list *or* an alias you register. Local Ollama model
-names aren't in that list, so register an alias first, then use it:
+names aren't in that list, so register an alias first, then use it (Windows /
+Linux: substitute your non-MLX model, e.g. `ollama/gemma4:12b`):
 
 ```python
 %ai alias gemma ollama/gemma4:26b-mlx
@@ -261,18 +326,21 @@ os.environ["OLLAMA_HOST"] = "http://localhost:11000"
 The biggest memory knob for a **local** chat model is its **context window**
 (`num_ctx` in Ollama) — it sizes the KV cache, which is allocated in your
 machine's RAM/VRAM on top of the model weights.
-This repo caps the default model at a **128K** context via `jupyter_ai_config.py`:
+This repo caps its default models via `jupyter_ai_config.py` — 128K for the
+big-machine defaults, 32K for the 16-GB-class `gemma4:12b`:
 
 ```python
 c.AiExtension.model_parameters = {
-    "ollama/gemma4:26b-mlx": {
-        "num_ctx": 131072,  # 128K context window
-    },
+    "ollama/gemma4:26b-mlx": {"num_ctx": 131072},  # macOS default — 128K
+    "ollama/gemma4:12b":     {"num_ctx": 32768},   # Windows/Linux default — 32K
+    "ollama/gemma4:26b":     {"num_ctx": 131072},  # big Windows/Linux boxes — 128K
 }
 ```
 
-`start.sh` loads this automatically (`jupyter lab --config=jupyter_ai_config.py`).
-LiteLLM passes `num_ctx` straight through to Ollama.
+Both launchers load this automatically (`jupyter lab
+--config=jupyter_ai_config.py`). LiteLLM passes `num_ctx` straight through to
+Ollama. **The keys are matched exactly** — if you switch to a different model,
+add/edit a key to match it or no cap applies.
 
 > **Verify it took effect.** After a chat exchange, run `ollama ps` to see the
 > loaded context size for the model. If `num_ctx` doesn't appear to apply, set it
@@ -335,9 +403,13 @@ common gotcha is updating one but not the other:
    settings to a machine-local runtime file (this is *not* in the repo):
 
    ```
-   ~/Library/Jupyter/jupyter_ai/config.json        # macOS
-   ~/.local/share/jupyter/jupyter_ai/config.json   # Linux
+   ~/Library/Jupyter/jupyter_ai/config.json          # macOS
+   ~/.local/share/jupyter/jupyter_ai/config.json     # Linux
+   %APPDATA%\jupyter\jupyter_ai\config.json          # Windows (C:\Users\<you>\AppData\Roaming\...)
    ```
+
+   (If in doubt, `jupyter --paths` prints the data directory the
+   `jupyter_ai` folder lives in.)
 
    Its `"model_provider_id"` (e.g. `"ollama/gemma4:26b-mlx"`) is what loads on
    startup. The repo's `jupyter_ai_config.py` only sets per-model *parameters*
@@ -354,8 +426,8 @@ common gotcha is updating one but not the other:
 ollama pull mymodel
 
 # 2. Point the repo's parameter config + docs at it
-#    - jupyter_ai_config.py: change the "ollama/<model>" key
-#    - start.sh:             update DEFAULT_MODEL (cosmetic — see note below)
+#    - jupyter_ai_config.py: change (or add) the "ollama/<model>" key
+#    - start.sh / start.ps1: update DEFAULT_MODEL (cosmetic — see note below)
 ```
 
 **OpenRouter:** there's nothing to pull — just use the model ID
@@ -370,11 +442,12 @@ Then update the **active selection** one of two ways:
   `"ollama/mymodel"` or `"openrouter/org/model"`. Do this only while **JupyterLab
   is not running**, or Lab may overwrite your edit on shutdown.
 
-> **Does `start.sh` need updating too?** Its `DEFAULT_MODEL` is **not** what
+> **Does the launcher need updating too?** Its `DEFAULT_MODEL` is **not** what
 > selects the model — `config.json` (above) is. `DEFAULT_MODEL` only drives the
 > startup "available models" message and the *pull-me* hint, so changing it is
-> cosmetic; keep it accurate for whichever Ollama model you default to. `start.sh`
-> *does* matter for OpenRouter in one way: set `OPENROUTER_API_KEY` before running
+> cosmetic; keep it accurate for whichever Ollama model you default to (it lives
+> in `start.sh` on macOS/Linux and `start.ps1` on Windows). The launcher *does*
+> matter for OpenRouter in one way: set `OPENROUTER_API_KEY` before running
 > it, or the Ollama pre-flight check stops the launch.
 
 ### Free the old model from memory (Ollama only)
@@ -418,12 +491,17 @@ variable.
 
 ### 2. Provide the key
 
-- **For the launcher / chat** — export it before starting Lab (keep it out of
+- **For the launcher / chat** — set it before starting Lab (keep it out of
   git; the repo already ignores `.env`):
 
   ```bash
-  export OPENROUTER_API_KEY="sk-or-..."
+  export OPENROUTER_API_KEY="sk-or-..."   # macOS / Linux
   ./start.sh
+  ```
+
+  ```powershell
+  $env:OPENROUTER_API_KEY = "sk-or-..."   # Windows PowerShell
+  .\start.cmd
   ```
 
   You can instead paste the key into **Jupyternaut Settings** (Jupyter AI persists
@@ -478,6 +556,7 @@ while Lab is stopped (see [Switching models](#switching-models)).
 ### Verify it
 
 ```bash
+# macOS / Linux
 export OPENROUTER_API_KEY="sk-or-..."
 python - <<'PY'
 import litellm
@@ -487,6 +566,19 @@ r = litellm.completion(
 )
 print(r.choices[0].message.content)
 PY
+```
+
+```powershell
+# Windows PowerShell (a here-string piped to python replaces the bash heredoc)
+$env:OPENROUTER_API_KEY = "sk-or-..."
+@'
+import litellm
+r = litellm.completion(
+    model="openrouter/anthropic/claude-3.5-sonnet",
+    messages=[{"role": "user", "content": "Reply with the single word: pong"}],
+)
+print(r.choices[0].message.content)
+'@ | .venv\Scripts\python.exe -
 ```
 
 ---
@@ -521,6 +613,7 @@ guide for the full list and details.
 A quick end-to-end check from the activated venv, without opening Lab:
 
 ```bash
+# macOS / Linux
 python - <<'PY'
 import litellm
 r = litellm.completion(
@@ -529,6 +622,18 @@ r = litellm.completion(
 )
 print(r.choices[0].message.content)
 PY
+```
+
+```powershell
+# Windows PowerShell — note the non-MLX model tag
+@'
+import litellm
+r = litellm.completion(
+    model="ollama/gemma4:12b",            # uses http://127.0.0.1:11434
+    messages=[{"role": "user", "content": "Reply with the single word: pong"}],
+)
+print(r.choices[0].message.content)
+'@ | .venv\Scripts\python.exe -
 ```
 
 If you get a reply, Jupyternaut and the `%%ai` magics will work too.
@@ -543,8 +648,11 @@ If you get a reply, Jupyternaut and the `%%ai` magics will work too.
 
 | Symptom                                   | Fix                                                                        |
 | ----------------------------------------- | -------------------------------------------------------------------------- |
-| Ollama / connection errors                | Make sure `ollama serve` is running and `curl http://127.0.0.1:11434/api/tags` returns JSON. |
+| Ollama / connection errors                | Make sure `ollama serve` is running (Windows: the Ollama tray app) and `curl http://127.0.0.1:11434/api/tags` returns JSON. In *Windows PowerShell*, `curl` is an alias for `Invoke-WebRequest` — use `curl.exe ...` or `Invoke-RestMethod http://127.0.0.1:11434/api/tags`. |
 | Model "not found"                         | `ollama pull <model>`; the name after `ollama/` must match `ollama list`.  |
+| A `*-mlx` model won't pull / load on Windows or Linux | MLX builds are Apple-Silicon-only. Pull a standard GGUF tag instead (e.g. `gemma4:12b`) and select that in Jupyternaut Settings. |
+| Windows: "running scripts is disabled on this system" | You ran `start.ps1` (or `Activate.ps1`) under the default *Restricted* policy. Use `start.cmd`, or `powershell -NoProfile -ExecutionPolicy Bypass -File start.ps1`, or for activation `Set-ExecutionPolicy -Scope Process RemoteSigned`. |
+| Windows: `python` opens the Microsoft Store | That's the Windows app-alias stub, not Python. Install Python from python.org/the Store, then use the `py` launcher (`py -3 ...`) — `start.cmd` already prefers it. |
 | `@Jupyternaut` doesn't appear in the chat | Confirm `jupyter-ai[jupyternaut]` is installed in the **same** venv running Lab (`pip show jupyter-ai-jupyternaut`). |
 | `@Tutor` doesn't appear in the chat       | The persona auto-loads from `.jupyter/personas/`; check the server log for import errors, then run `/refresh-personas` in chat or restart Lab. See `docs/PERSONAS.md`. |
 | `%%ai ollama/<model>` says "not a known model or alias" | Register an alias first: `%ai alias gemma ollama/<model>`, then `%%ai gemma`. Local Ollama models aren't in LiteLLM's static list. |

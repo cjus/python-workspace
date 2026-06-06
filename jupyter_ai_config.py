@@ -22,9 +22,20 @@
 
 c = get_config()  # noqa: F821  (provided by the Jupyter config loader)
 
+# NOTE: keys are matched EXACTLY against the selected model id. Entries are
+# provided for the repo defaults on each platform; if you pick a different
+# model in Jupyternaut Settings, add/edit a key to match it or no cap applies.
 c.AiExtension.model_parameters = {
+    # macOS (Apple Silicon) default — MLX build:
     "ollama/gemma4:26b-mlx": {
         "num_ctx": 131072,  # 128K context window (verify it takes effect — see caveat above)
+    },
+    # Windows / Linux defaults — standard GGUF builds (MLX tags are Apple-only):
+    "ollama/gemma4:12b": {
+        "num_ctx": 32768,  # 32K — sized for ~16 GB machines; raise if you have headroom
+    },
+    "ollama/gemma4:26b": {
+        "num_ctx": 131072,  # 128K — for ≥32 GB RAM / large-GPU boxes
     },
 }
 
