@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Tutor">
+  <circle cx="32" cy="32" r="32" fill="#0f172a"/>
+  <!-- graduation-cap "tutor" glyph -->
+  <g fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- mortarboard -->
+    <polygon points="32,14 54,24 32,34 10,24" fill="#fbbf24" stroke="none"/>
+    <!-- cap base -->
+    <path d="M20 29 v10 q12 8 24 0 v-10"/>
+    <!-- tassel -->
+    <line x1="54" y1="24" x2="54" y2="38"/>
+    <circle cx="54" cy="41" r="2.5" fill="#fbbf24" stroke="none"/>
+  </g>
+</svg>

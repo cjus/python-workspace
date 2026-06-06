@@ -1,0 +1,19 @@
+# Jupyter AI environment (v3 series) with Ollama as the local backend.
+# Pinned to the 3.x line so the chat UI, Jupyternaut agent, and %%ai magics
+# match the docs at https://jupyter-ai.readthedocs.io/en/v3/users/index.html
+#
+# v3 ships no model agent by default. The "jupyternaut" extra adds the
+# Jupyternaut agent (the v3 home of the classic provider-based chat, incl.
+# Ollama/OpenRouter, via LiteLLM); the "magics" extra adds the %%ai notebook
+# magic commands. LiteLLM replaces LangChain, so langchain-ollama is no longer
+# needed.
+jupyter-ai[jupyternaut,magics]>=3.0,<4.0
+jupyterlab
+
+# The standard Python data toolkit — the libraries you'll meet in virtually
+# every data / scientific Python tutorial. Installed up front so notebooks
+# (and AI-generated code) "just run" without per-package pip detours.
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+scipy>=1.11
