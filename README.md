@@ -1,4 +1,4 @@
-# Python Workspace
+# 🐍 Python Workspace
 
 Learn Python with a friendly AI tutor — right on your own computer.
 
