@@ -1,67 +1,51 @@
 # Python Workspace
 
-A ready-to-use **JupyterLab + AI** workspace for learning Python development —
-local-first, with a built-in AI tutor.
+Learn Python with a friendly AI tutor — right on your own computer.
 
-- **One command to start**: `./start.sh` (macOS/Linux) or `.\start.cmd` (Windows)
-  creates the environment, installs everything, and opens JupyterLab.
-- **AI that runs on your machine**: chat and notebook AI are powered by
-  [Jupyter AI](https://jupyter-ai.readthedocs.io/en/v3/) v3 with a local
-  [Ollama](https://ollama.com) model by default — no API keys, no cost, and
-  nothing you type leaves your computer.
-- **Hosted models when you want them**: flip to
-  [OpenRouter](https://openrouter.ai) with a single API key for access to
-  frontier models (Anthropic, OpenAI, Google, …).
-- **A Python tutor in the chat**: the `@Tutor` persona answers learning
-  questions and scaffolds ready-to-run practice notebooks for any topic.
-- **The data toolkit pre-installed**: `numpy`, `pandas`, `matplotlib`, `scipy`.
+This is a ready-made workspace for learning Python. It gives you:
 
-## Getting started
+- **A place to write and run Python** — [JupyterLab](https://jupyter.org)
+  opens in your web browser; you write code in *notebooks* and run it with
+  Shift+Enter.
+- **An AI tutor in the chat** — ask **@Tutor** anything about Python, and it
+  can create practice notebooks on any topic, just for you.
+- **AI that's free and private** — by default the AI runs *on your computer*
+  (via [Ollama](https://ollama.com)): no account, no cost, and nothing you
+  type leaves your machine. (A cloud option exists too, if you want it.)
+- **The everyday Python libraries pre-installed** — `numpy`, `pandas`,
+  `matplotlib`, `scipy` — so examples from tutorials just work.
 
-1. Install [Ollama](https://ollama.com/download) and pull a model
-   (or skip this and use OpenRouter — see
-   [SETUP.md](SETUP.md#using-openrouter-instead-of-ollama)):
+No programming experience needed — that's what you're here to get.
 
-   ```bash
-   # macOS (Apple Silicon):
-   ollama pull gemma4:26b-mlx     # repo default (MLX build; needs ≥36 GB unified memory)
+## Get started
 
-   # Windows / Linux (MLX builds are Apple-only — use a standard tag):
-   ollama pull gemma4:12b         # ~8 GB; fits 16 GB machines
+Three steps, all spelled out click-by-click in **[SETUP.md](SETUP.md)**:
 
-   # lighter machines on any OS: ollama pull llama3.2
-   ```
-
-2. Launch:
+1. **Install two free programs** — Python and Ollama — then download an AI
+   model (one command; it's a big download, so give it time).
+2. **Start the workspace:**
 
    ```bash
    ./start.sh      # macOS / Linux
-   .\start.cmd     # Windows (PowerShell or cmd; double-clicking it works too)
+   .\start.cmd     # Windows (double-clicking start.cmd works too)
    ```
 
-3. In JupyterLab, open **`welcome.ipynb`** and follow the tour. The first time,
-   pick your model in **Settings → Jupyternaut Settings** (e.g.
-   `ollama/gemma4:26b-mlx` on Apple Silicon, `ollama/gemma4:12b` on
-   Windows/Linux).
+   The first run sets everything up (a few minutes); after that it starts in
+   seconds. JupyterLab opens in your browser.
+3. **Open `welcome.ipynb`** in JupyterLab and follow along — it checks your
+   setup and gives you the tour.
 
-The full environment guide — models by machine size, memory tuning, switching
-between Ollama and OpenRouter, `%%ai` magics, troubleshooting — is in
-**[SETUP.md](SETUP.md)**.
+If anything doesn't work, the fix is almost certainly in
+[SETUP.md → When something goes wrong](SETUP.md#when-something-goes-wrong).
 
-## Learning with the Tutor
+## Meet your tutor
 
-The **Tutor** persona lives in this repo
-([`.jupyter/personas/tutor_persona.py`](.jupyter/personas/tutor_persona.py)) and
-appears automatically in the chat. `@`-mention it:
+Open a chat (the **Chat** card on the JupyterLab launcher) and talk to
+**@Tutor**:
 
-- `new <topic>` — scaffold a ready-to-run practice notebook for a topic
-- `list` — list your practice notebooks
-- `help` — command help
-
-Anything else is answered conversationally by the configured model, with a
-Python-tutor system prompt.
-
-Example interaction:
+- Ask anything: `@Tutor what's the difference between a list and a tuple?`
+- Get a practice notebook: `@Tutor new loops`
+- See your notebooks: `@Tutor list`
 
 > **You**
 >
@@ -73,66 +57,40 @@ Example interaction:
 >
 > - ✅ Wrote `practice_list_comprehensions.ipynb` (TOPIC pre-set, 1 cell updated).
 >
-> **Open it** from the JupyterLab file browser and *Run All*. Its `%%ai` cells
-> ask the configured model for an explanation and exercises about your topic;
-> solve them in the empty cells that follow.
+> **Open it** from the JupyterLab file browser and *Run All*.
 
-Each practice notebook (from [`practice_template.ipynb`](practice_template.ipynb))
-walks the same loop: **explanation → exercises (no solutions) → your attempts →
-AI review**. Re-run the `%%ai` cells for a fresh set, or edit their prompts to
-raise the difficulty.
+Each practice notebook walks the same loop: **explanation → exercises → your
+attempts → AI review**. Run the AI cells again any time for a fresh set, or
+ask for harder ones.
 
-## Two ways to use AI
+There's also **@Jupyternaut**, the general assistant — great for *"what does
+this error mean?"* — and you can ask the AI from inside any notebook with the
+`%%ai` magic (the welcome notebook shows you how).
 
-1. **The chat panel** — `@Jupyternaut` (general assistant; can read/write files
-   and work with notebooks, asking permission first) and `@Tutor` (this repo's
-   Python tutor).
-2. **`%%ai` magics in notebook cells** — generate explanations or code inline:
+## What's in this folder
 
-   ```python
-   %load_ext jupyter_ai_magic_commands
-   # macOS (Apple Silicon); Windows/Linux use: %ai alias gemma ollama/gemma4:12b
-   %ai alias gemma ollama/gemma4:26b-mlx
+| You'll use…                  | What it is                                              |
+| ---------------------------- | ------------------------------------------------------- |
+| `start.sh` / `start.cmd`     | Starts everything (macOS-Linux / Windows)               |
+| `welcome.ipynb`              | The guided tour — start here                            |
+| `SETUP.md`                   | Click-by-click setup help and fixes                     |
+| `practice_…ipynb` notebooks  | Your practice notebooks (made by @Tutor)                |
 
-   %%ai gemma -f code
-   Write a function that checks whether a string is a palindrome.
-   ```
+| Behind the scenes…           |                                                         |
+| ---------------------------- | ------------------------------------------------------- |
+| `practice_template.ipynb`    | The template @Tutor copies for practice notebooks       |
+| `.jupyter/personas/`         | The Tutor itself — a small Python program you can read  |
+| `requirements*.txt`, `jupyter_ai_config.py`, `start.ps1` | Environment plumbing — the launcher handles these |
+| `docs/`, `tests/`            | Guides for teachers & tinkerers, and the test suite     |
 
-Both use the model selected in **Jupyternaut Settings** — local (`ollama/...`)
-or hosted (`openrouter/...`). See [SETUP.md](SETUP.md#usage).
+## For teachers and tinkerers
 
-## Build your own AI persona
-
-The Tutor is also a worked example of Jupyter AI's **local persona** mechanism:
-drop a `*persona*.py` file into `.jupyter/personas/` and it appears in the chat —
-no packaging required. The pattern (deterministic chat commands + a
-conversational model fallback, so it works even with small local models) is
-documented in **[docs/PERSONAS.md](docs/PERSONAS.md)**.
-
-## What's in here
-
-| Path                         | Purpose                                                        |
-| ---------------------------- | -------------------------------------------------------------- |
-| `start.sh`                   | One-command launcher for macOS/Linux (venv, deps, kernel pinning, pre-flight checks) |
-| `start.cmd` / `start.ps1`    | The same launcher for Windows (`start.cmd` is the entry point)  |
-| `SETUP.md`                   | Full environment guide (Ollama, OpenRouter, models, tuning)     |
-| `welcome.ipynb`              | Guided tour of the workspace                                    |
-| `practice_template.ipynb`    | Template the Tutor scaffolds practice notebooks from            |
-| `.jupyter/personas/`         | The Tutor persona (+ avatar) — auto-loaded by Jupyter AI        |
-| `jupyter_ai_config.py`       | Per-model parameters (context-window cap) + upstream workarounds |
-| `docs/PERSONAS.md`           | How to write your own chat persona                              |
-| `requirements.txt`           | Dependencies (Jupyter AI v3, JupyterLab, data toolkit)          |
-| `requirements.lock.txt`      | Fully pinned versions from a known-good environment             |
-| `tests/`                     | Unit tests for the Tutor persona's pure helpers                 |
-
-## Development
-
-Run the tests from the workspace venv:
-
-```sh
-.venv/bin/python -m unittest discover -s tests        # macOS / Linux
-.venv\Scripts\python -m unittest discover -s tests    # Windows
-```
+- **[docs/TEACHERS-GUIDE.md](docs/TEACHERS-GUIDE.md)** — classroom setup
+  checklist, choosing models for your machines, running a class on a cloud
+  model, customizing the Tutor for your course, and all the technical
+  reference (memory tuning, model switching, how the launchers work, tests).
+- **[docs/PERSONAS.md](docs/PERSONAS.md)** — build your own AI chat persona
+  (the Tutor is a worked example you can copy).
 
 ## License
 
