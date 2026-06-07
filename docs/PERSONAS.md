@@ -63,7 +63,7 @@ things (download, scaffold, report) rather than just talk:
 
    ```python
    cfg = self.parent.serverapp.web_app.settings.get("jupyternaut.config_manager")
-   model_id = getattr(cfg, "chat_model", None)         # e.g. "ollama/gemma4:26b-mlx"
+   model_id = getattr(cfg, "chat_model", None)         # e.g. "ollama_chat/gemma4:12b"
 
    from jupyter_ai_jupyternaut.jupyternaut.chat_models import ChatLiteLLM
    from langchain_core.messages import HumanMessage, SystemMessage

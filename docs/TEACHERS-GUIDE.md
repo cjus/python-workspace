@@ -42,9 +42,10 @@ classroom bandwidth you control:
 3. **Pull the model for that machine** (see
    [Choosing models](#choosing-models-for-your-machines)):
    ```bash
-   ollama pull gemma4:12b        # typical Windows/Linux lab machine
-   ollama pull gemma4:26b-mlx    # Apple Silicon with ≥36 GB
+   ollama pull gemma4:12b        # the repo default — any OS, ~16 GB machines
    ```
+   (Bigger hardware? See [Choosing models](#choosing-models-for-your-machines)
+   for larger models and the Apple-Silicon `-mlx` builds.)
 4. **Get the repo onto the machine** (git clone, or Download ZIP for students
    who don't have git yet).
 5. **Run the launcher once** (`./start.sh` / `start.cmd`) — this creates
@@ -74,20 +75,32 @@ Two facts drive the choice:
   system RAM if CPU-only), keeping roughly **1.5× the model's download size**
   free for the model plus its working memory.
 
-### Apple Silicon (macOS)
-
-| Machine memory      | Recommended model | Why                                            |
-| ------------------- | ----------------- | ---------------------------------------------- |
-| **≥ 36 GB**         | `gemma4:26b-mlx`  | 26B, Apple MLX format — the repo default; best quality the hardware can comfortably hold |
-| **< 36 GB** (e.g. 16 GB) | `gemma4:e4b`  | Smaller/lighter; runs well where 26B would be too tight |
+The repo default on **every platform** is `gemma4:12b` (~7.6 GB) — it fits a
+typical 16 GB machine and is selected automatically on first start. The tables
+below are for sizing *up* or *down* from that default.
 
 ### Windows / Linux
 
 | Hardware                          | Recommended model       | Why                                  |
 | --------------------------------- | ----------------------- | ------------------------------------ |
-| **~16 GB RAM** or a ~8 GB GPU     | `gemma4:12b` (~7.6 GB)  | The repo's Windows/Linux default     |
+| **~16 GB RAM** or a ~8 GB GPU     | `gemma4:12b` (~7.6 GB)  | The repo default                     |
 | **≥ 32 GB RAM** or a ≥ 24 GB GPU  | `gemma4:26b` (~18 GB)   | Best quality the hardware can hold   |
 | Older / low-memory machines       | `gemma4:e2b-it-qat` (~4.3 GB) or `llama3.2` | Ultra-light, still capable |
+
+### Apple Silicon (macOS) — advanced options
+
+`gemma4:12b` (the repo default) runs fine on Apple Silicon. If you want to
+push further, the MLX builds use Apple's native framework and run noticeably
+faster — but they are **Apple-Silicon-only** and need plenty of unified
+memory:
+
+| Machine memory      | Advanced option   | Why                                            |
+| ------------------- | ----------------- | ---------------------------------------------- |
+| **≥ 36 GB**         | `gemma4:26b-mlx`  | 26B in Apple MLX format — best quality the hardware can comfortably hold |
+| **< 36 GB** (e.g. 16 GB) | `gemma4:e4b`  | Smaller/lighter alternative where 26B would be too tight |
+
+After pulling one, select it in **Settings → Jupyternaut Settings** (e.g.
+`ollama_chat/gemma4:26b-mlx`).
 
 Browse alternatives at <https://ollama.com/library> (e.g. `llama3.2`,
 `mistral`, `qwen2.5`, `codellama`, `phi3`). Explicit quantization tags
@@ -134,19 +147,62 @@ Classroom considerations:
 
 ## Teaching with the Tutor persona
 
-The **@Tutor** persona (`.jupyter/personas/tutor_persona.py`) is the
-course-facing feature. What it does and how to lean on it:
+The workspace gives you two complementary teaching assets: the **eight-week
+course** in [`lessons/`](../lessons/README.md) (fixed, hand-written, one
+~45-minute notebook per week) and the **@Tutor** persona
+(`.jupyter/personas/tutor_persona.py`), which generates practice material on
+demand. What the Tutor does and how to lean on it:
 
 - **`new <topic>`** scaffolds `practice_<topic>.ipynb` from
   `practice_template.ipynb` with the topic pre-set. The notebook walks
   *explanation → exercises (no solutions) → student attempts → AI review*.
   Natural homework loop: assign `@Tutor new functions`, students submit the
   completed notebook.
-- **`list`** shows the practice notebooks a student has generated — a quick
-  view of what they've covered.
+- **`list`** shows the course lessons (`lessons/`) plus the practice
+  notebooks a student has generated — a quick view of the course and what
+  they've covered. (`lessons` works as an alias.)
 - **Free-form questions** go to the configured model with a Python-tutor
   system prompt (encouraging, explains *why*, prefers small runnable
   examples).
+
+### Pairing the lessons with practice notebooks
+
+The two halves solve different problems, and the course works best when you
+use them together deliberately:
+
+- **Lessons give you a shared sequence.** Everyone covers the same core, in
+  the same order, with the same vocabulary — your class time stays anchored,
+  and the **🖊️ Your turn** exercises and **🧠 Check yourself** quizzes give
+  every student the same baseline reps.
+- **Practice notebooks give you differentiation without authoring.** The
+  lesson's reps are fixed and finite; the Tutor's are unlimited and targeted.
+  A student shaky on loops drills loops; a student who's ahead edits the
+  `%%ai` prompt to ask for interview-level problems — neither needs you to
+  write a worksheet.
+- **The pairing is a spaced-repetition loop.** The lesson introduces the
+  concept in class; the practice notebook makes the student *retrieve* it
+  days later, with immediate AI review closing the feedback gap before the
+  next session. The lesson supplies the topic vocabulary that makes
+  `new <topic>` prompts land on-syllabus.
+
+Concrete patterns that work:
+
+- **End every class with an assignment**: "before next week, run
+  `@Tutor new <this week's topic>` and complete it." The notebook's *AI
+  review* cell gives formative feedback; students submit the completed
+  notebook if you want evidence of work.
+- **`@Tutor list` as a progress check**: in office hours or while circulating,
+  it shows the course plus every practice notebook the student has generated —
+  a one-command view of what they've drilled beyond the lessons.
+- **Pre-seed weak spots**: after a rough quiz on lesson N, tell specific
+  students which `new <topic>` to run — cheaper than re-teaching, and private.
+
+One caveat: generated exercises vary with the model (and run-to-run), so skim
+a sample before treating them as graded material — the AI review cell is
+formative feedback, not an answer key. For consistent exercises across a
+class, standardize the model (see
+[Choosing models](#choosing-models-for-your-machines)) or bake fixed
+exercises into the template instead.
 
 ### Customizing it for your course
 
@@ -180,9 +236,18 @@ the model. Keep that split if you extend it.
   no model of its own; the provider-based chat comes from the **Jupyternaut**
   agent (installed via the `[jupyternaut]` extra in `requirements.txt`).
 - **Models use [LiteLLM](https://docs.litellm.ai/) IDs** of the form
-  `<provider>/<model>` — e.g. `ollama/gemma4:12b`,
+  `<provider>/<model>` — e.g. `ollama_chat/gemma4:12b`,
   `openrouter/anthropic/claude-3.5-sonnet`. LiteLLM (not LangChain) is the
   transport for both the chat and the magics.
+- **Local models: always the `ollama_chat/` prefix, not `ollama/`.** LiteLLM
+  has two Ollama providers: `ollama_chat/` talks to Ollama's native chat API
+  (`/api/chat`) with real tool calling, while the older `ollama/` uses
+  `/api/generate` and *emulates* tools by instructing the model to answer
+  only with a JSON tool call. Jupyternaut binds tools to the chat agent, so
+  with `ollama/` every reply arrives as raw
+  `{"name": "...", "arguments": ...}` JSON instead of an answer. (The one
+  exception: the *embeddings* model keeps the `ollama/` prefix —
+  `ollama_chat/` has no embeddings endpoint.)
 - **Chats are files + AI personas.** Each agent is an **AI persona** invoked
   by `@`-mention. Chats are saved as files in the workspace, so students can
   reopen them and keep several in parallel. Local personas auto-load from
@@ -195,8 +260,8 @@ the model. Keep that split if you extend it.
   before anything beyond reading. Worth demonstrating to students once so the
   permission prompts don't surprise them.
 - **`%%ai` magics details:** local Ollama models need an alias
-  (`%ai alias gemma ollama/<model>`) because they aren't in LiteLLM's static
-  model list; `openrouter/...` ids work directly. `-f code|math|html|image`
+  (`%ai alias gemma ollama_chat/<model>`) because they aren't in LiteLLM's
+  static model list; `openrouter/...` ids work directly. `-f code|math|html|image`
   formats the output. `%ai list`, `%ai dealias <name>` manage aliases. For a
   non-default Ollama host, set `OLLAMA_HOST` before `%load_ext`, or pass
   `--api-base` when registering the alias.
@@ -213,12 +278,15 @@ The biggest memory knob for a local model is its **context window** (`num_ctx`)
 The repo caps its default models in `jupyter_ai_config.py`:
 
 ```python
-c.AiExtension.model_parameters = {
-    "ollama/gemma4:26b-mlx": {"num_ctx": 131072},  # macOS default — 128K
-    "ollama/gemma4:12b":     {"num_ctx": 32768},   # Windows/Linux default — 32K
-    "ollama/gemma4:26b":     {"num_ctx": 131072},  # big Windows/Linux boxes — 128K
+c.JupyternautExtension.model_parameters = {
+    "ollama_chat/gemma4:12b":     {"num_ctx": 32768},   # the repo default — 32K
+    "ollama_chat/gemma4:26b":     {"num_ctx": 131072},  # big Windows/Linux boxes — 128K
+    "ollama_chat/gemma4:26b-mlx": {"num_ctx": 131072},  # Apple-Silicon advanced option — 128K
 }
 ```
+
+(The repo's actual config also registers each cap under the legacy `ollama/`
+prefix, so it applies however the id is written.)
 
 Both launchers load this automatically (`jupyter lab
 --config=jupyter_ai_config.py`). **Keys are matched exactly** against the
@@ -235,7 +303,7 @@ it or no cap applies.
 > PARAMETER num_ctx 32768
 > ```
 > ```bash
-> ollama create gemma4-32k -f Modelfile   # then use ollama/gemma4-32k
+> ollama create gemma4-32k -f Modelfile   # then use ollama_chat/gemma4-32k
 > ```
 
 If memory is tight, lower `num_ctx` (values are tokens): `131072` = 128K,
@@ -380,7 +448,7 @@ A backend check from the activated venv, without opening Lab:
 python - <<'PY'
 import litellm
 r = litellm.completion(
-    model="ollama/gemma4:26b-mlx",        # uses http://127.0.0.1:11434
+    model="ollama_chat/gemma4:12b",       # uses http://127.0.0.1:11434
     messages=[{"role": "user", "content": "Reply with the single word: pong"}],
 )
 print(r.choices[0].message.content)
@@ -393,7 +461,7 @@ PY
 @'
 import litellm
 r = litellm.completion(
-    model="ollama/gemma4:12b",            # uses http://127.0.0.1:11434
+    model="ollama_chat/gemma4:12b",       # uses http://127.0.0.1:11434
     messages=[{"role": "user", "content": "Reply with the single word: pong"}],
 )
 print(r.choices[0].message.content)
@@ -416,9 +484,9 @@ magics will work too.
 - **`@Jupyternaut` missing from chat:** the `[jupyternaut]` extra isn't in
   the venv running Lab — `pip show jupyter-ai-jupyternaut` to confirm, then
   reinstall from `requirements.txt`.
-- **`%%ai ollama/<model>` says "not a known model or alias":** local Ollama
-  names aren't in LiteLLM's static list — register an alias first
-  (`%ai alias gemma ollama/<model>`), then use `%%ai gemma`.
+- **`%%ai ollama_chat/<model>` says "not a known model or alias":** local
+  Ollama names aren't in LiteLLM's static list — register an alias first
+  (`%ai alias gemma ollama_chat/<model>`), then use `%%ai gemma`.
 - **Chat keeps loading an old model after a switch:** the saved
   `model_provider_id` in the machine-local `config.json` wins — see
   [Switching the default model](#switching-the-default-model), then

@@ -38,6 +38,14 @@ Three steps, all spelled out click-by-click in **[SETUP.md](SETUP.md)**:
 If anything doesn't work, the fix is almost certainly in
 [SETUP.md → When something goes wrong](SETUP.md#when-something-goes-wrong).
 
+## The eight-week course
+
+Want a structured path instead of wandering? **[`lessons/`](lessons/README.md)**
+is a complete beginner course: eight notebooks, one ~45-minute session per
+week, from "what is Python?" to building your first small program. Lesson 1
+is a light tour of the whole course, so you can decide after a single session
+whether it's for you.
+
 ## Meet your tutor
 
 Open a chat (the **Chat** card on the JupyterLab launcher) and talk to
@@ -45,7 +53,7 @@ Open a chat (the **Chat** card on the JupyterLab launcher) and talk to
 
 - Ask anything: `@Tutor what's the difference between a list and a tuple?`
 - Get a practice notebook: `@Tutor new loops`
-- See your notebooks: `@Tutor list`
+- See the course lessons and your notebooks: `@Tutor list`
 
 > **You**
 >
@@ -63,6 +71,14 @@ Each practice notebook walks the same loop: **explanation → exercises → your
 attempts → AI review**. Run the AI cells again any time for a fresh set, or
 ask for harder ones.
 
+**Lessons and practice notebooks are two halves of one loop.** The
+[`lessons/`](lessons/README.md) course is the fixed path — the same eight
+hand-written notebooks for everyone, in order. Practice notebooks are the
+opposite: generated on demand, about whatever *you* need more reps on, as
+many as you like. A good rhythm: finish a lesson, then
+`@Tutor new <something from that lesson>` for extra practice before the next
+session. Lessons teach; practice notebooks make it stick.
+
 There's also **@Jupyternaut**, the general assistant — great for *"what does
 this error mean?"* — and you can ask the AI from inside any notebook with the
 `%%ai` magic (the welcome notebook shows you how).
@@ -73,6 +89,7 @@ this error mean?"* — and you can ask the AI from inside any notebook with the
 | ---------------------------- | ------------------------------------------------------- |
 | `start.sh` / `start.cmd`     | Starts everything (macOS-Linux / Windows)               |
 | `welcome.ipynb`              | The guided tour — start here                            |
+| `lessons/`                   | The eight-week beginner course (start with lesson 01)   |
 | `SETUP.md`                   | Click-by-click setup help and fixes                     |
 | `practice_…ipynb` notebooks  | Your practice notebooks (made by @Tutor)                |
 

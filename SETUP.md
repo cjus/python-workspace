@@ -59,23 +59,19 @@ works offline. **It's a big download (4–18 GB)** — use good Wi-Fi and give i
 time.
 
 Open a terminal (**Windows:** press Start, type `powershell`, press Enter.
-**macOS:** open the *Terminal* app) and type the line for your computer:
+**macOS:** open the *Terminal* app) and type:
 
 ```bash
-# Mac with Apple Silicon (M1/M2/M3/M4) and 36 GB+ memory:
-ollama pull gemma4:26b-mlx
-
-# Windows or Linux (most machines — this is the usual choice):
+# The workspace default — works on Mac, Windows, and Linux:
 ollama pull gemma4:12b
 
 # Older or low-memory machine (any OS) — smaller and faster to download:
 ollama pull llama3.2
 ```
 
-Not sure which? `gemma4:12b` is a safe choice on Windows/Linux; on a smaller
-Mac use `gemma4:e4b`. (Why different models per machine? Short answer: Macs
-and PCs use different model formats, and bigger models need more memory — the
-full story is in the
+Not sure which? `gemma4:12b` is the default this workspace is set up for and
+runs on a typical 16 GB machine. (Have a beefier computer? Larger models and
+Apple-Silicon-optimized `-mlx` builds are covered in the
 [Teacher's Guide](docs/TEACHERS-GUIDE.md#choosing-models-for-your-machines).)
 
 ## 4. Start the workspace
@@ -105,15 +101,20 @@ Every time after that, the same command starts in seconds.
 
 ## 5. Tell the chat which AI to use
 
-One-time setting:
+**If you downloaded `gemma4:12b` in step 3, skip this — the workspace selects
+it automatically on first start.** You only need this if you picked a
+different model:
 
 1. In JupyterLab, open the **Settings** menu (top of the window) and choose
    **Jupyternaut Settings**.
-2. In the **Chat model** field, type `ollama/` followed by the model you
-   downloaded in step 3. For example:
-   - `ollama/gemma4:26b-mlx` (Apple Silicon Mac)
-   - `ollama/gemma4:12b` (Windows / Linux)
+2. In the **Chat model** field, type `ollama_chat/` followed by the model you
+   downloaded in step 3. For example: `ollama_chat/llama3.2`.
 3. Click **Save**.
+
+> Why `ollama_chat/` and not `ollama/`? The chat assistant uses tools (to
+> read files, run code, …), and only the `ollama_chat/` form supports that
+> properly — with `ollama/` the chat replies with raw
+> `{"name": ..., "arguments": ...}` JSON instead of answers.
 
 That's it — no account, no API key. (If you forget what you downloaded, type
 `ollama list` in a terminal.)
@@ -169,8 +170,10 @@ options are covered in the
 | `ERROR: Ollama server not reachable`           | Ollama isn't running. Open the Ollama app (Windows: check the system tray; macOS: the menu bar), then run the launcher again. |
 | "running scripts is disabled on this system" (Windows) | You ran `start.ps1` directly. Use **`start.cmd`** instead.       |
 | Typing `python` opens the Microsoft Store (Windows) | Python isn't installed yet — do [step 1](#1-install-python). The launcher uses the right Python automatically once it's installed. |
-| The chat never replies / "model not found"     | The model name in **Settings → Jupyternaut Settings** must exactly match one from `ollama list` (with `ollama/` in front). Fix it and **Save**. |
-| A model ending in `-mlx` won't download or run | `-mlx` models are for Apple Silicon Macs only. On Windows/Linux use `gemma4:12b` (see [step 3](#3-download-an-ai-model)). |
+| The chat never replies / "model not found"     | The model name in **Settings → Jupyternaut Settings** must exactly match one from `ollama list` (with `ollama_chat/` in front). Fix it and **Save**. |
+| The chat replies with `{"name": …, "arguments": …}` JSON | The chat model is set with the `ollama/` prefix. Change it to `ollama_chat/` (see [step 5](#5-tell-the-chat-which-ai-to-use)). |
+| "pull model manifest: 412: … requires a newer version of Ollama" | Your Ollama is too old for this model. Update it: click the Ollama icon (menu bar / system tray) and choose the update option, or re-download from [ollama.com/download](https://ollama.com/download). Then retry the `ollama pull`. |
+| A model ending in `-mlx` won't download or run | `-mlx` models are for Apple Silicon Macs only — and an advanced option even there. Use the default `gemma4:12b` (see [step 3](#3-download-an-ai-model)). |
 | The first reply takes forever                  | Normal — the model is loading into memory. Later replies are faster.    |
 | A notebook says a package is missing (`numpy`, `pandas`, …) | Run the launcher again (it installs anything missing), then in the notebook menu pick **Kernel → Restart Kernel**. |
 | `@Tutor` doesn't appear in the chat            | Restart the launcher. If it still doesn't appear, tell your teacher — the server log will say why (see the [Teacher's Guide](docs/TEACHERS-GUIDE.md)). |
