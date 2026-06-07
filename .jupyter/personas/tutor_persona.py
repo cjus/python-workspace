@@ -7,7 +7,8 @@ WHAT IT DOES
       • `new <topic>`   — scaffold a ready-to-run practice notebook
         (`practice_<topic>.ipynb`, a copy of `practice_template.ipynb` with the
         TOPIC pre-set) into the workspace, then point you at it.
-      • `list`          — list the practice notebooks already in the workspace.
+      • `list`          — list the course lessons (`lessons/`) and the practice
+        notebooks already in the workspace. (`lessons` works too.)
       • `help`          — command help.
 
     Anything else is answered conversationally by the configured chat model
@@ -56,6 +57,7 @@ from jupyterlab_chat.models import Message
 # the workspace root, and scaffolded notebooks are written there too.
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE_NOTEBOOK = WORKSPACE_ROOT / "practice_template.ipynb"
+LESSONS_DIR = WORKSPACE_ROOT / "lessons"
 AVATAR_PATH = str(Path(__file__).resolve().parent / "tutor_avatar.svg")
 
 PRACTICE_PREFIX = "practice_"
@@ -72,16 +74,21 @@ deterministically):
 
   • `new <topic>` — scaffold a practice notebook for a topic, e.g. \
 `new list comprehensions` → `practice_list_comprehensions.ipynb`
-  • `list`        — list the practice notebooks in the workspace
+  • `list`        — list the course lessons and the practice notebooks in \
+the workspace (`lessons` works too)
   • `help`        — show command help
 
 Key facts to convey accurately:
+  • The **eight-week beginner course** lives in the `lessons/` folder \
+(`lessons/01-welcome-to-python.ipynb` through `08-...`); learners should \
+start with lesson 01 and open the notebooks from the file browser. \
+`lessons/README.md` has the full schedule.
   • Practice notebooks are created from `practice_template.ipynb` at the \
 workspace root and contain `%%ai` cells that generate exercises for the topic \
 when run — the learner should open the scaffolded notebook and *Run All*.
   • The workspace also has **@Jupyternaut** (the general assistant) and the \
 `%%ai` notebook magics; the model used by all of them is picked in \
-**Settings → Jupyternaut Settings** (local `ollama/...` or hosted \
+**Settings → Jupyternaut Settings** (local `ollama_chat/...` or hosted \
 `openrouter/...`).
   • The data toolkit (`numpy`, `pandas`, `matplotlib`, `scipy`) is already \
 installed in the workspace venv.
@@ -119,7 +126,7 @@ def parse_command(text: str) -> dict[str, Any]:
     lower = text.lower().strip()
     if lower in ("help", "?", "/help", "commands"):
         return {"kind": "help"}
-    if lower in ("list", "ls", "notebooks"):
+    if lower in ("list", "ls", "notebooks", "lessons"):
         return {"kind": "list"}
 
     tokens = text.split()
@@ -132,6 +139,33 @@ def parse_command(text: str) -> dict[str, Any]:
 
     # Everything after the verb is the topic ('new list comprehensions').
     return {"kind": "new", "topic": " ".join(tokens[1:]).strip() or None}
+
+
+def format_listing(lesson_names: list[str], practice_names: list[str]) -> str:
+    """
+    Render the `list` reply from the two notebook collections (names only —
+    the caller does the filesystem walking, keeping this pure for tests).
+    """
+    sections = []
+
+    if lesson_names:
+        lines = "\n".join(f"- `lessons/{name}`" for name in lesson_names)
+        sections.append(
+            "**Course lessons** — open from the `lessons/` folder in the file "
+            "browser; start with lesson 01 (the schedule is in "
+            "`lessons/README.md`):\n\n" + lines
+        )
+
+    if practice_names:
+        lines = "\n".join(f"- `{name}`" for name in practice_names)
+        sections.append("**Practice notebooks**\n\n" + lines)
+    else:
+        sections.append(
+            "**Practice notebooks** — none yet. Create one with `new <topic>` "
+            "— e.g. `new list comprehensions`."
+        )
+
+    return "\n\n".join(sections)
 
 
 def set_topic(nb: dict, topic: str) -> int:
@@ -240,17 +274,21 @@ class TutorPersona(BasePersona):
             "exercises about your topic; solve them in the empty cells that follow."
         )
 
-    # ── `list` — practice notebooks already in the workspace ─────────────────
+    # ── `list` — course lessons + practice notebooks ──────────────────────────
     def _list_text(self) -> str:
-        notebooks = sorted(WORKSPACE_ROOT.glob(f"{PRACTICE_PREFIX}*.ipynb"))
-        notebooks = [n for n in notebooks if n.name != TEMPLATE_NOTEBOOK.name]
-        if not notebooks:
-            return (
-                "No practice notebooks yet. Create one with `new <topic>` — "
-                "e.g. `new list comprehensions`."
-            )
-        lines = "\n".join(f"- `{n.name}`" for n in notebooks)
-        return f"**Practice notebooks in this workspace**\n\n{lines}"
+        # Numbered course notebooks; sorted() puts them in course order
+        # (01-…, 02-…). The folder may be absent in stripped-down copies.
+        lessons = (
+            sorted(n.name for n in LESSONS_DIR.glob("*.ipynb"))
+            if LESSONS_DIR.is_dir()
+            else []
+        )
+        practice = sorted(
+            n.name
+            for n in WORKSPACE_ROOT.glob(f"{PRACTICE_PREFIX}*.ipynb")
+            if n.name != TEMPLATE_NOTEBOOK.name
+        )
+        return format_listing(lessons, practice)
 
     @staticmethod
     def _rel(p: Path) -> str:
@@ -310,7 +348,8 @@ class TutorPersona(BasePersona):
             "**Tutor — commands**\n\n"
             "- `new <topic>` — scaffold `practice_<topic>.ipynb` from the "
             "template, with the topic pre-set (e.g. `new list comprehensions`)\n"
-            "- `list` — list the practice notebooks in the workspace\n"
+            "- `list` — list the course lessons (`lessons/`) and the practice "
+            "notebooks in the workspace\n"
             "- `help` — this message\n\n"
             "Anything else is answered conversationally by the configured chat "
             "model (pick it in *Settings → Jupyternaut Settings*). Practice "

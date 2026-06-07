@@ -78,7 +78,7 @@ class TestParseCommand(unittest.TestCase):
             self.assertEqual(tutor.parse_command(text)["kind"], "help", text)
 
     def test_list_variants(self):
-        for text in ("list", "ls", "notebooks"):
+        for text in ("list", "ls", "notebooks", "lessons"):
             self.assertEqual(tutor.parse_command(text)["kind"], "list", text)
 
     def test_new_with_multiword_topic(self):
@@ -98,6 +98,30 @@ class TestParseCommand(unittest.TestCase):
 
     def test_empty_is_chat(self):
         self.assertEqual(tutor.parse_command("")["kind"], "chat")
+
+
+class TestFormatListing(unittest.TestCase):
+    def test_lessons_and_practice(self):
+        text = tutor.format_listing(
+            ["01-welcome-to-python.ipynb", "02-variables-and-data.ipynb"],
+            ["practice_dicts.ipynb"],
+        )
+        self.assertIn("**Course lessons**", text)
+        self.assertIn("- `lessons/01-welcome-to-python.ipynb`", text)
+        self.assertIn("- `lessons/02-variables-and-data.ipynb`", text)
+        self.assertIn("**Practice notebooks**", text)
+        self.assertIn("- `practice_dicts.ipynb`", text)
+
+    def test_lessons_only_still_hints_at_new(self):
+        text = tutor.format_listing(["01-welcome-to-python.ipynb"], [])
+        self.assertIn("**Course lessons**", text)
+        self.assertIn("none yet", text)
+        self.assertIn("`new <topic>`", text)
+
+    def test_no_lessons_folder(self):
+        text = tutor.format_listing([], [])
+        self.assertNotIn("Course lessons", text)
+        self.assertIn("none yet", text)
 
 
 class TestSetTopic(unittest.TestCase):
