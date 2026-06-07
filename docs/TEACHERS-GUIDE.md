@@ -276,6 +276,23 @@ the model. Keep that split if you extend it.
   non-default Ollama host, set `OLLAMA_HOST` before `%load_ext`, or pass
   `--api-base` when registering the alias.
 
+### Chat code → runnable cell in one click
+
+If attachments are how code gets *into* the chat, this is how it gets back
+*out*. Every code block a persona returns carries a small **code toolbar** —
+v3 gives it three buttons: **copy** to the clipboard, **insert as a cell
+above/below** the active cell, and **replace the active cell** outright. So a
+chat answer becomes a runnable cell without retyping or copy-paste. And the
+**notebook tools** that let a persona read your active cell, create/edit
+notebooks, and run code (the MCP toolkit behind the "act on the workspace"
+bullet above) are already **on** in this workspace — they come in as a core
+dependency of `jupyter-ai` (`jupyter-server-mcp`, pulled by
+`requirements.txt`:10) and need no toggle in `jupyter_ai_config.py`.
+**Demonstrate it once:** ask the
+tutor "write a function that reverses a string," click **insert below** on its
+code block, and Shift+Enter — your class sees idea → cell → result in three
+clicks, no typing.
+
 ### Three v3 magics worth teaching
 
 These three turn the magics into a built-in "explain my error" tutor — handy in

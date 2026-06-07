@@ -239,7 +239,10 @@ Shift+Enter, do the **🖊️ Your turn** exercises, check the
   only mentioned in optional *"After class (optional)"* footers
   ([`../lessons/README.md`](../lessons/README.md):38–40; e.g. `lessons/05-…`
   ends with `@Tutor new functions`). A footer-skipper can finish all eight
-  weeks and never use the product's reason for existing.
+  weeks and never use the product's reason for existing. *(In-flow framing
+  addressed June 2026 — see Status, backlog #3: every lesson body 02–08 now
+  carries one mandatory "🤖 Ask your tutor" moment; live `%%ai` cells stay
+  commented by design to keep Run-All offline.)*
 - **The week-6 motivation cliff.** Lesson 6 has **no chart or game payoff**
   (verified: 0 matplotlib/plot cells — true of lessons 2–7, but it matters most
   here), centers on red error text, and its longest section is
@@ -262,7 +265,11 @@ Shift+Enter, do the **🖊️ Your turn** exercises, check the
   is strictly required — but it is still fiddly, and worth noting that "add a
   cell" is never taught either: Lesson 1 only teaches Shift+Enter (verified: no
   "press B" / "add a cell" instruction in `lessons/01-…`), so any exercise that
-  *did* need a fresh cell would strand the learner.
+  *did* need a fresh cell would strand the learner. *(Addressed June 2026 — see
+  Status, backlog #10: the retype/TODO placeholders are gone — bugs are now
+  fixed in place, live where they only mis-print and uncomment-in-place where
+  they'd otherwise raise; "add a cell" via press B / the + toolbar is now taught
+  once in Lesson 1.)*
 
 **Opportunities:** answer key on every Your-turn; one in-flow AI moment early
 (e.g. a Lesson 2 `%%ai` "explain this", or `%ai fix` in Lesson 6); a small
@@ -405,7 +412,10 @@ she must describe it). Step 5 fails *silently* if her model isn't the hard-coded
 alias default. Step 6's "review" is generic, not Socratic, and never warns her
 the AI can be wrong — risky for a beginner who can't yet tell right code from
 wrong. And critically, **steps 3–7 are only ever invited from optional "After
-class" footers**, so a footer-skipper never enters the loop at all.
+class" footers**, so a footer-skipper never enters the loop at all. *(Addressed
+June 2026 — see backlog #3: each lesson body 02–08 now carries one mandatory
+in-flow "🤖 Ask your tutor" moment, so the loop is invited inside the lesson,
+not only from the footer.)*
 
 ---
 
@@ -469,19 +479,19 @@ separately.
 |---|-----|-------|---------|--------|--------|---------|--------|
 | 1 | Launcher's closing tip steers to the broken `ollama/` prefix the docs warn against (`start.sh`:102, `start.ps1`:179) | 1 | Sam | High | Small | **Now** | ✅ Shipped (Jun 2026) |
 | 2 | "Your turn" exercises have no answer key/self-check; solo learner can't verify (`lessons/02-…` `3c6c7c71` vs the good `# should print` in `lessons/05-…`) | 3 | Maya | High | Medium | **Now** | ✅ Shipped (Jun 2026) |
-| 3 | Headline AI features only in optional "After class" footers — 0 `%%ai` cells in any lesson body; never experienced in-flow | 3/4 | Maya | High | Medium | **Now** | ◐ Partial — in-flow "🤖 Ask your tutor" markdown moments added to Lessons 1–3 & 6 only; 4/5/7/8 still AI-free in-flow, and live `%%ai` stays commented out to keep Run-All offline |
+| 3 | Headline AI features only in optional "After class" footers — 0 `%%ai` cells in any lesson body; never experienced in-flow | 3/4 | Maya | High | Medium | **Now** | ✅ Shipped (Jun 2026) — one in-flow "🤖 Ask your tutor" markdown moment now in every lesson body 02–08 (each a distinct angle: ask-a-concept, one-more-decision/challenge, review-your-function, read-the-error, predict-then-run, brainstorm), verified exactly one per lesson; live `%%ai` stays commented out by design to keep Run-All offline |
 | 4 | welcome.ipynb tour never links `lessons/` or Lesson 1 (cell `next-md`) | 2 | Maya | Medium | Small | **Now** | ✅ Shipped (Jun 2026) |
 | 5 | Capstone game's interactive `play_live` is commented out; solo learner only watches a demo (`lessons/08-…` `ec677d7d`) | 5 | Maya | Medium | Small | **Now** | ✅ Shipped (Jun 2026) |
 | 6 | No RAM check + no port-8888 handling; "slow is normal" masks a hang (`start.sh`/`start.ps1`; `SETUP.md`:177) | 1 | Sam | High | Medium | Next | ✅ Shipped (Jun 2026) |
 | 7 | `@Tutor` `SYSTEM_PROMPT` is generic, not Socratic — no hints-not-answers guardrail (`tutor_persona.py`:65–98) | 4 | Mr. Lee | High | Small | Next | ✅ Shipped (Jun 2026) |
 | 8 | Practice template alias defaults to `gemma4:12b`; needs a one-line hand-edit + Run All on any other model (inline note exists but a beginner may skip it) (`practice_template.ipynb` `ai-setup`) | 4 | Maya | Medium | Medium | Next | ✅ Shipped (Jun 2026) |
 | 9 | `@Tutor new` silently overwrites a prior practice notebook (`tutor_persona.py`:266–272) | 4 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
-| 10 | Fix-the-bug is a fiddly retype-from-comments chore in an in-cell editable area (`lessons/06-…` `b45a54d4`, also 04 `c30d84bf` / 07 `409f5f43`); and "add a cell" is never taught (Lesson 1 only teaches Shift+Enter) | 3 | Maya | Medium | Medium | Next | ◐ Partial — "add a cell" (press B / + toolbar) now taught in Lesson 1 and a drag-into-chat stuck-nudge added to every Fix-the-bug; the in-cell retype-from-comments format itself is unchanged |
+| 10 | Fix-the-bug is a fiddly retype-from-comments chore in an in-cell editable area (`lessons/06-…` `b45a54d4`, also 04 `c30d84bf` / 07 `409f5f43`); and "add a cell" is never taught (Lesson 1 only teaches Shift+Enter) | 3 | Maya | Medium | Medium | Next | ✅ Shipped (Jun 2026) — no retype-from-comments chore survives: each Fix-the-bug is now fix-in-place. Live (CASE A) bugs run with wrong output and the learner edits them directly (04 `c30d84bf`, 06 `b45a54d4`); exception/infinite-loop (CASE B) bugs stay commented by design to keep Run-All offline-safe, with the learner un-commenting them *right in the same cell* (delete the `#`s or Cmd+/ / Ctrl+/). "Add a cell" (press B / + toolbar) is now taught once in Lesson 1, and a drag-into-chat stuck-nudge sits on every Fix-the-bug. (The commented CASE B starting state is a deliberate Run-All residual, not the old chore.) |
 | 11 | Lesson 6 motivation cliff — no visual/game payoff at the 2/3 drop-off point (0 plot cells; `## 4. try / except … (~15 min)`) | 3 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
 | 12 | Long, serial TTFS — two big downloads back-to-back; default's real size (`gemma4:12b` ~7.6 GB, `TEACHERS-GUIDE.md`:78) never shown to the learner, only the "4–18 GB" range | 1 | Sam | Medium | Small | Next | ✅ Shipped (Jun 2026) |
 | 13 | macOS setup assumes `cd`; no double-click mac launcher (`SETUP.md`:87–90) | 1 | Sam | Medium | Small | Next | ✅ Shipped (Jun 2026) |
 | 14 | No AI-fallibility warning anywhere (welcome / template / tutor's first reply) | 2/4 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
-| 15 | Lessons 3 & 4 overstuffed for 45 min; mark densest pieces as skippable stretch goals | 3 | Maya | Medium | Small | Later | ◐ Partial — densest pieces marked skippable stretch goals in both lessons; underlying content not actually slimmed |
+| 15 | Lessons 3 & 4 overstuffed for 45 min; mark densest pieces as skippable stretch goals | 3 | Maya | Medium | Small | Later | ✅ Shipped (Jun 2026) — as scoped (mark, don't slim): Lesson 3's `while` section and number-guessing demo, and Lesson 4's `for`+`if` filter pattern, are all tagged *stretch goal — skip if short on time*. A re-check confirmed nothing else qualifies as genuinely optional — booleans/`if`/`and`-`or`-`not` and lists/`for`/loop-patterns are load-bearing for Lessons 4/5 — so the underlying content is deliberately left intact rather than slimmed. |
 
 ---
 
@@ -499,7 +509,7 @@ unranked list.
 | `%ai fix` + `Err[n]` / `In[n]` / `Out[n]` refs | v3 magics auto-explain the last error and let prompts reference prior cells | A built-in "explain my error" tutor that maps exactly onto **Lesson 6** and a beginner's #1 need. Zero copy-paste. The Teacher's Guide documents `-f` and aliases (`TEACHERS-GUIDE.md`:262–267) but never `%ai fix`. <https://jupyter-ai.readthedocs.io/en/v3/users/magic_commands/index.html> | High / Medium / Now (→ #3, #11) · ✅ Shipped (Jun 2026, doc) — "Three v3 magics worth teaching" added to the Teacher's Guide |
 | `{variable}` interpolation into `%%ai` | Prompts can interpolate Python values, e.g. `{Err[1]}` or `{df.head()}` | Lets a learner feed *actual* data/errors into a prompt, and makes the template's `{TOPIC}` robust rather than version-dependent. | Medium / Small / Next (→ #3, #8) · ✅ Shipped (Jun 2026, doc) — covered in the Teacher's Guide magics subsection |
 | Chat context attachments (`@file:<path>`, drag a file **or a cell**, paperclip) | v3's no-embeddings successor to `/learn`; personas read the attached context | **Highest-leverage beginner add:** drag the broken cell into chat and ask "why is this wrong?" — directly fixes the "@Tutor can't read the notebook" gap. <https://jupyter-ai.readthedocs.io/en/v3/users/index.html> | High / Small / Now (→ Stage 4 "@Tutor can't read the open notebook") · ✅ Shipped (Jun 2026, doc) — Teacher's Guide attachments bullet plus drag-a-cell pointers in welcome.ipynb, the lessons, and `lessons/README.md` |
-| Notebook tools (MCP) + code-toolbar (insert-as-cell / replace / explain active cell) | Personas can act on the active notebook; MCP is already ON in this repo (`TEACHERS-GUIDE.md`:256–260) | Turns chat answers into runnable code in one click. The guide under-sells it as an advanced "demonstrate once" aside. | Medium / Small / Later (→ #3) · Open — still the pre-existing MCP under-sell; no new code-toolbar surfacing |
+| Notebook tools (MCP) + code-toolbar (insert-as-cell / replace; reading the active cell is a notebook-tool, not a toolbar button) | Personas can act on the active notebook; MCP is already ON in this repo (`TEACHERS-GUIDE.md`:256–260) | Turns chat answers into runnable code in one click. The guide under-sells it as an advanced "demonstrate once" aside. | Medium / Small / Later (→ #3) · ✅ Shipped (Jun 2026, doc) — Teacher's Guide "Chat code → runnable cell in one click" subsection now surfaces the three code-toolbar buttons (copy / insert-as-cell / replace) and the already-on MCP notebook tools, with a three-click demonstrate-in-class flow |
 | Socratic `SYSTEM_PROMPT` (hint ladder, one diagnostic question, self-explanation) | Not a Jupyter AI feature — the one file the repo fully controls | The highest-leverage AI change; a few imperative lines convert a generic chatbot into a tutor that preserves authorship. <https://arxiv.org/pdf/2506.19107> | High / Small / Next (= #7) · ✅ Shipped (Jun 2026) — Socratic hints-not-answers ladder added to `SYSTEM_PROMPT` |
 | Assert-based "check my work" cells (NBgrader/PyEvalAI pattern) | A lightweight test cell that runs first, *then* asks the model | Closes the biggest solo-learner feedback gap (no answer key). Full NBgrader is overkill; a few asserts in the template + lessons is proportionate. <https://arxiv.org/abs/2502.18425> | High / Medium / Now (= #2) · ◐ Partial — the answer-key gap (#2) is closed via collapsible "✅ Check your answer" reveals in all 8 lessons, not auto-running assert cells |
 | ⚠️ Inline ghost-text autocomplete — **NOT in v3** | jupyter-ai's inline completer is disabled in v3 pending a LiteLLM refactor (issue #1431) | Expectation correction: don't hunt for a toggle that doesn't exist. For as-you-type completion the real path is a separate extension (jupyterlite/ai, Notebook Intelligence). Worth one line in the Teacher's Guide. <https://github.com/jupyterlab/jupyter-ai/issues/1431> | Low / Small / Later (doc-only) · ✅ Shipped (Jun 2026, doc) — expectation-correction bullet added to the Teacher's Guide |
