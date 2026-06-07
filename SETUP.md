@@ -55,8 +55,8 @@ computer.
 ## 3. Download an AI model
 
 A "model" is the AI brain Ollama runs. You download it once; after that it
-works offline. **It's a big download (4–18 GB)** — use good Wi-Fi and give it
-time.
+works offline. **It's a big download (4–18 GB; the default `gemma4:12b` is
+about 7.6 GB)** — use good Wi-Fi and give it time.
 
 Open a terminal (**Windows:** press Start, type `powershell`, press Enter.
 **macOS:** open the *Terminal* app) and type:
@@ -84,15 +84,24 @@ Then start it:
 
 - **Windows:** double-click **`start.cmd`** in the folder. (Or, in PowerShell:
   `cd` into the folder and run `.\start.cmd`.)
-- **macOS / Linux:** open Terminal, `cd` into the folder, and run:
+- **macOS:** double-click **`start.command`** in the folder. (If macOS blocks
+  it the first time, right-click it and choose **Open**.) This is the mac
+  equivalent of double-clicking `start.cmd` on Windows.
+- **macOS / Linux (Terminal):** open Terminal, `cd` into the folder, and run:
   ```bash
   ./start.sh
   ```
+  > `cd` just moves Terminal into that folder. Shortcut: type `cd` and a space,
+  > drag the folder onto the Terminal window, then press **Return**.
 
 **The first run takes a few minutes** — it sets up a private Python
 environment and downloads the tools it needs (about 2 GB). You'll see lots of
 text scroll by; that's normal. When it's done, **JupyterLab opens in your web
 browser** — that's the workspace.
+
+> The model download (step 3) and this first launcher run are independent —
+> they don't wait on each other, so you can open a second Terminal window and
+> start the launcher while the model is still downloading.
 
 Every time after that, the same command starts in seconds.
 
@@ -175,9 +184,10 @@ options are covered in the
 | "pull model manifest: 412: … requires a newer version of Ollama" | Your Ollama is too old for this model. Update it: click the Ollama icon (menu bar / system tray) and choose the update option, or re-download from [ollama.com/download](https://ollama.com/download). Then retry the `ollama pull`. |
 | A model ending in `-mlx` won't download or run | `-mlx` models are for Apple Silicon Macs only — and an advanced option even there. Use the default `gemma4:12b` (see [step 3](#3-download-an-ai-model)). |
 | The first reply takes forever                  | Normal — the model is loading into memory. Later replies are faster.    |
+| JupyterLab opens on an unfamiliar port (not 8888), or a second Lab tab appears / "address already in use" | Another JupyterLab is already using port 8888, so this one picked the next free port (8889, 8890, …). Either close the other JupyterLab window, or just keep working in the new tab — it's the same workspace. |
 | A notebook says a package is missing (`numpy`, `pandas`, …) | Run the launcher again (it installs anything missing), then in the notebook menu pick **Kernel → Restart Kernel**. |
 | `@Tutor` doesn't appear in the chat            | Restart the launcher. If it still doesn't appear, tell your teacher — the server log will say why (see the [Teacher's Guide](docs/TEACHERS-GUIDE.md)). |
-| Download is huge / slow                        | Yes — models are 4–18 GB. Use good Wi-Fi, start it before a break, and only pull one model. |
+| Download is huge / slow                        | Yes — models are 4–18 GB (the default `gemma4:12b` is about 7.6 GB). Use good Wi-Fi, start it before a break, and only pull one model. |
 
 Still stuck? Ask your teacher, or open an issue on the repo — include the
 exact message you saw.

@@ -172,11 +172,27 @@ if ($OllamaUp) {
     if (-not ($ModelLines -match [regex]::Escape($DefaultModel))) {
         Write-Host "NOTE: default model '$DefaultModel' not pulled yet. Run: ollama pull $DefaultModel"
     }
+    # RAM sanity check: the default 12B model wants ~16 GB. On a smaller machine
+    # warn (don't block) and point to the lighter model from the Teacher's Guide.
+    # Any detection hiccup is silently skipped -- this is advisory only.
+    try {
+        $RamBytes = (Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop).TotalPhysicalMemory
+        if ($RamBytes -and ($RamBytes -gt 0)) {
+            $RamGiB = [int]($RamBytes / 1GB)
+            # 15, not 16: Windows reports usable RAM minus hardware-reserved
+            # memory, so a real 16 GB machine can compute 15 and would false-warn.
+            if ($RamGiB -lt 15) {
+                Write-Host "NOTE: this machine has about $RamGiB GB RAM; the default '$DefaultModel' wants ~16 GB"
+                Write-Host '      and may be slow or stall. A lighter model that still works well:'
+                Write-Host '      ollama pull gemma4:e2b-it-qat   (then pick ollama_chat/gemma4:e2b-it-qat in Settings)'
+            }
+        }
+    } catch { }
 }
 Write-Host ''
 Write-Host 'Tip: open a chat from the launcher (Chat card) and @-mention @Jupyternaut,'
 Write-Host '     or @-mention @Tutor for the built-in Python tutor persona.'
-Write-Host "     Pick the model in Settings -> Jupyternaut Settings (e.g. ollama/$DefaultModel)."
+Write-Host "     Pick the model in Settings -> Jupyternaut Settings (e.g. ollama_chat/$DefaultModel)."
 Write-Host ''
 
 # --config applies jupyter_ai_config.py (e.g. the per-model num_ctx caps).

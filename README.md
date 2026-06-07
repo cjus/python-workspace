@@ -26,7 +26,7 @@ Three steps, all spelled out click-by-click in **[SETUP.md](SETUP.md)**:
 2. **Start the workspace:**
 
    ```bash
-   ./start.sh      # macOS / Linux
+   ./start.sh      # macOS / Linux (or double-click start.command on a Mac)
    .\start.cmd     # Windows (double-clicking start.cmd works too)
    ```
 
@@ -63,7 +63,7 @@ Open a chat (the **Chat** card on the JupyterLab launcher) and talk to
 >
 > Scaffolding a practice notebook for **list comprehensions** …
 >
-> - ✅ Wrote `practice_list_comprehensions.ipynb` (TOPIC pre-set, 1 cell updated).
+> - ✅ Created `practice_list_comprehensions.ipynb` (TOPIC pre-set, 1 cell updated).
 >
 > **Open it** from the JupyterLab file browser and *Run All*.
 
@@ -87,7 +87,7 @@ this error mean?"* — and you can ask the AI from inside any notebook with the
 
 | You'll use…                  | What it is                                              |
 | ---------------------------- | ------------------------------------------------------- |
-| `start.sh` / `start.cmd`     | Starts everything (macOS-Linux / Windows)               |
+| `start.sh` / `start.cmd`     | Starts everything (macOS-Linux / Windows; Mac users can double-click `start.command`) |
 | `welcome.ipynb`              | The guided tour — start here                            |
 | `lessons/`                   | The eight-week beginner course (start with lesson 01)   |
 | `SETUP.md`                   | Click-by-click setup help and fixes                     |

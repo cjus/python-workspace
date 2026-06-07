@@ -95,11 +95,25 @@ if [ "$OLLAMA_UP" -eq 1 ]; then
   if ! ollama list 2>/dev/null | grep -q "${DEFAULT_MODEL}"; then
     echo "NOTE: default model '${DEFAULT_MODEL}' not pulled yet. Run: ollama pull ${DEFAULT_MODEL}"
   fi
+  # RAM sanity check: the default 12B model wants ~16 GB. On a smaller machine
+  # warn (don't block) and point to the lighter model from the Teacher's Guide.
+  # Any detection hiccup is silently skipped — this is advisory only.
+  if RAM_BYTES="$( { sysctl -n hw.memsize 2>/dev/null || awk '/^MemTotal:/ {print $2 * 1024; exit}' /proc/meminfo 2>/dev/null; } )" \
+     && [ -n "$RAM_BYTES" ] && [ "$RAM_BYTES" -gt 0 ] 2>/dev/null; then
+    RAM_GIB=$(( RAM_BYTES / 1024 / 1024 / 1024 ))
+    # 15, not 16: Linux MemTotal under-reports nominal RAM (kernel-reserved
+    # memory), so a real 16 GB machine can compute 15 and would false-warn.
+    if [ "$RAM_GIB" -lt 15 ]; then
+      echo "NOTE: this machine has about ${RAM_GIB} GB RAM; the default '${DEFAULT_MODEL}' wants ~16 GB"
+      echo "      and may be slow or stall. A lighter model that still works well:"
+      echo "      ollama pull gemma4:e2b-it-qat   (then pick ollama_chat/gemma4:e2b-it-qat in Settings)"
+    fi
+  fi
 fi
 echo
 echo "Tip: open a chat from the launcher (Chat card) and @-mention @Jupyternaut,"
 echo "     or @-mention @Tutor for the built-in Python tutor persona."
-echo "     Pick the model in Settings -> Jupyternaut Settings (e.g. ollama/${DEFAULT_MODEL})."
+echo "     Pick the model in Settings -> Jupyternaut Settings (e.g. ollama_chat/${DEFAULT_MODEL})."
 echo
 # --config applies jupyter_ai_config.py (e.g. the ollama/gemma4:26b-mlx num_ctx cap).
 exec .venv/bin/jupyter lab --config="${PWD}/jupyter_ai_config.py" "$@"
