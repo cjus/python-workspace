@@ -374,9 +374,19 @@ class TutorPersona(BasePersona):
             model = ChatLiteLLM(
                 **cfg.chat_model_args, model=model_id, streaming=True
             )
+            # Include any cells/files the learner dragged into the chat so the
+            # tutor can actually *read* the code it's asked to review. Dragged
+            # items arrive on message.attachments (a list of IDs), not in
+            # message.body; BasePersona.process_attachments resolves and reads
+            # them. Several lessons (e.g. "drag your cell in and ask @Tutor to
+            # look it over") depend on this.
+            user_content = message.body or ""
+            attached = self.process_attachments(message)
+            if attached:
+                user_content = f"{user_content}\n\nAttached code:\n{attached}"
             history = [
                 SystemMessage(content=SYSTEM_PROMPT),
-                HumanMessage(content=message.body or ""),
+                HumanMessage(content=user_content),
             ]
 
             async def aiter() -> AsyncIterator[str]:
