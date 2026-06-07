@@ -34,10 +34,12 @@ done either way.
 2. Run the cells top to bottom with **Shift+Enter**, editing and re-running
    as you go — the notebooks are meant to be tinkered with.
 3. Do the **🖊️ Your turn** exercises as you reach them; check the
-   **🧠 Check yourself** quiz at the end.
+   **🧠 Check yourself** quiz at the end. Each exercise has a collapsible
+   **✅ Check your answer** underneath — genuinely try it first, then peek.
 4. Between classes (optional): ask the tutor in the chat panel —
    `@Tutor new <topic>` scaffolds a practice notebook on anything from that
-   week. See the [README](../README.md) for more on the tutor.
+   week. You can also drag any cell into the chat to ask about it. See the
+   [README](../README.md) for more on the tutor.
 
 > **Lessons vs. practice notebooks:** these eight lessons are the fixed
 > course — hand-written, the same for everyone, done in order. Practice

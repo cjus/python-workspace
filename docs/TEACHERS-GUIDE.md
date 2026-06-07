@@ -259,12 +259,38 @@ the model. Keep that split if you extend it.
   commands, edit notebooks via the Jupyter MCP server — and asks permission
   before anything beyond reading. Worth demonstrating to students once so the
   permission prompts don't surprise them.
+- **Chat context attachments** let a student *show* a persona their work
+  instead of describing it: type `@file:<path>` (an autocomplete menu walks the
+  file tree), drag a file — or a single notebook **cell** — into the chat input,
+  or click the paperclip to pick a file. The persona reads the attachment as
+  context. This is the no-fuss way for a stuck learner to hand the tutor their
+  actual broken code or error.
+- **No inline ghost-text autocomplete (yet).** Jupyter AI v3 ships *no*
+  as-you-type completion — the inline completer is disabled pending a LiteLLM
+  refactor (jupyter-ai issue #1431). Don't hunt for a toggle; if you want
+  editor completions, add a separate extension (e.g. Notebook Intelligence).
 - **`%%ai` magics details:** local Ollama models need an alias
   (`%ai alias gemma ollama_chat/<model>`) because they aren't in LiteLLM's
   static model list; `openrouter/...` ids work directly. `-f code|math|html|image`
   formats the output. `%ai list`, `%ai dealias <name>` manage aliases. For a
   non-default Ollama host, set `OLLAMA_HOST` before `%load_ext`, or pass
   `--api-base` when registering the alias.
+
+### Three v3 magics worth teaching
+
+These three turn the magics into a built-in "explain my error" tutor — handy in
+Lesson 6, and reachable without any copy-paste:
+
+- **`%ai fix`** explains (and suggests a fix for) the *most recent error* using
+  the chosen model — just run `%ai fix gemma` right after a cell threw a
+  traceback. The single best "what does this mean?" move for a stuck beginner.
+- **`Err[n]` / `In[n]` / `Out[n]` references** let a prompt point at earlier
+  cells: `In[11]` is replaced with that cell's code, `Out[11]` with its output,
+  and `Err[3]` with the exception cell `In[3]` raised. So
+  `%%ai gemma` / `Why did this fail?\n{Err[3]}` feeds the real traceback in.
+- **`{variable}` interpolation** substitutes any Python value or expression into
+  a prompt — `%%ai gemma` then `Explain this data:\n{df.head()}` sends the actual
+  data, not a description of it. This is also why the template's `{TOPIC}` lands.
 
 ---
 
