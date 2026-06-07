@@ -224,3 +224,12 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+scratch*
+untitled.chat
+.env
+*.mp3
+
+# Data files created by the lesson notebooks (file-I/O exercises in lessons 7-8)
+lessons/*.txt
+lessons/*.csv
