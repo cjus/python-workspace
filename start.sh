@@ -85,7 +85,9 @@ fi
 # DEFAULT_MODEL is the default *Ollama* model (only used for the message + check
 # below). The model Jupyter AI actually loads comes from Jupyternaut Settings,
 # saved in ~/.../jupyter_ai/config.json — OpenRouter models are selected there too.
-DEFAULT_MODEL="gemma4:26b-mlx"
+# gemma4:12b is the repo default on every platform; Apple-Silicon `-mlx` builds
+# are an advanced option (see docs/TEACHERS-GUIDE.md).
+DEFAULT_MODEL="gemma4:12b"
 if [ "$OLLAMA_UP" -eq 1 ]; then
   echo "Ollama OK at ${OLLAMA_HOST_URL}. Default Ollama model for this repo: ${DEFAULT_MODEL}"
   echo "Available models:"

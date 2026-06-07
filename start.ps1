@@ -155,16 +155,16 @@ if ((Invoke-NativeQuiet $VenvPy @('-c', 'import jupyter_ai_jupyternaut')) -ne 0)
 }
 
 # 3. Launch JupyterLab.
-# $DefaultModel is the default *Ollama* model on Windows (only used for the
-# message + check below). The repo's macOS default, gemma4:26b-mlx, is an
-# Apple-Silicon-only MLX build and will NOT run here -- gemma4:12b is the
+# $DefaultModel is the default *Ollama* model (only used for the message +
+# check below). gemma4:12b is the repo default on every platform -- the
 # standard GGUF tag that fits ~16 GB machines (use gemma4:26b on a >=32 GB
-# RAM / large-GPU box). The model Jupyter AI actually loads comes from
-# Jupyternaut Settings, saved in %APPDATA%\jupyter\jupyter_ai\config.json --
-# OpenRouter models are selected there too. See SETUP.md.
+# RAM / large-GPU box; see docs/TEACHERS-GUIDE.md for advanced options).
+# The model Jupyter AI actually loads comes from Jupyternaut Settings, saved
+# in %APPDATA%\jupyter\jupyter_ai\config.json -- OpenRouter models are
+# selected there too. See SETUP.md.
 $DefaultModel = 'gemma4:12b'
 if ($OllamaUp) {
-    Write-Host "Ollama OK at $OllamaHostUrl. Default Ollama model for this repo on Windows: $DefaultModel"
+    Write-Host "Ollama OK at $OllamaHostUrl. Default Ollama model for this repo: $DefaultModel"
     Write-Host 'Available models:'
     $ModelLines = @()
     try { $ModelLines = @(& ollama list) } catch { $ModelLines = @() }
