@@ -93,6 +93,15 @@ when run — the learner should open the scaffolded notebook and *Run All*.
   • The data toolkit (`numpy`, `pandas`, `matplotlib`, `scipy`) is already \
 installed in the workspace venv.
 
+When the learner is working on an exercise, give a hint or a guiding question \
+first — never the full solution. Open a help exchange by asking one diagnostic \
+question (what did you try? what did you expect to happen?). Ask at most one \
+question per reply. Escalate hints gradually across turns: the concept, then \
+where the problem is, then a near-solution. If they explicitly ask for the full \
+answer after attempting, give it and explain it. Encourage predict-then-run: \
+have them say what they expect, then run it. And occasionally remind them you \
+can be wrong — they should run it and check.
+
 Be concise and encouraging. When the user clearly wants a practice notebook, \
 remind them of the exact `new <topic>` syntax rather than generating exercises \
 in chat."""
@@ -166,6 +175,23 @@ def format_listing(lesson_names: list[str], practice_names: list[str]) -> str:
         )
 
     return "\n\n".join(sections)
+
+
+def resolve_dest(directory: Path, slug: str) -> Path:
+    """
+    Pick a destination path that does not clobber existing work. Returns
+    `practice_<slug>.ipynb` if free, else the first free `practice_<slug>_2`,
+    `_3`, … so a learner's earlier practice notebook is never overwritten.
+    """
+    base = directory / f"{PRACTICE_PREFIX}{slug}.ipynb"
+    if not base.exists():
+        return base
+    n = 2
+    while True:
+        candidate = directory / f"{PRACTICE_PREFIX}{slug}_{n}.ipynb"
+        if not candidate.exists():
+            return candidate
+        n += 1
 
 
 def set_topic(nb: dict, topic: str) -> int:
@@ -262,13 +288,17 @@ class TutorPersona(BasePersona):
             )
             return
 
-        dest = WORKSPACE_ROOT / f"{PRACTICE_PREFIX}{slug}.ipynb"
-        existed = dest.exists()
+        wanted = WORKSPACE_ROOT / f"{PRACTICE_PREFIX}{slug}.ipynb"
+        dest = resolve_dest(WORKSPACE_ROOT, slug)
+        kept_existing = dest != wanted
         dest.write_text(json.dumps(nb, indent=1), encoding="utf-8")
 
+        kept_note = (
+            f" *(kept your existing `{self._rel(wanted)}`)*" if kept_existing else ""
+        )
         yield (
-            f"- ✅ Wrote `{self._rel(dest)}` (TOPIC pre-set, {replaced} cell updated)."
-            + (" *(replaced the previous copy)*" if existed else "")
+            f"- ✅ Created `{self._rel(dest)}` (TOPIC pre-set, {replaced} cell updated)."
+            + kept_note
             + "\n\n**Open it** from the JupyterLab file browser and *Run All*. "
             "Its `%%ai` cells ask the configured model for an explanation and "
             "exercises about your topic; solve them in the empty cells that follow."
@@ -299,10 +329,28 @@ class TutorPersona(BasePersona):
 
     # ── conversational fallback (uses the user-configured chat model) ────────
     def _config_manager(self):
-        try:
-            return self.parent.serverapp.web_app.settings.get("jupyternaut.config_manager")
-        except Exception:
-            return None
+        """
+        Jupyternaut's ConfigManager, registered in the Tornado web-app settings
+        under "jupyternaut.config_manager" (jupyter_ai_jupyternaut's
+        extension_app). A persona's `self.parent` is the *PersonaManager*,
+        which has no `serverapp` — that lives on the PersonaManager's own
+        parent (the PersonaManagerExtension). Walk up the parent chain to
+        whichever level has it rather than hard-coding the depth, so an
+        upstream re-nesting can't silently break the lookup again.
+        """
+        obj, hops = self.parent, 0
+        while obj is not None and hops < 5:
+            serverapp = getattr(obj, "serverapp", None)
+            if serverapp is not None:
+                try:
+                    return serverapp.web_app.settings.get(
+                        "jupyternaut.config_manager"
+                    )
+                except Exception:
+                    return None
+            obj = getattr(obj, "parent", None)
+            hops += 1
+        return None
 
     async def _respond_with_model(self, message: Message) -> None:
         cfg = self._config_manager()
@@ -310,9 +358,12 @@ class TutorPersona(BasePersona):
         if not model_id:
             # No model configured — still useful: explain what the persona can do.
             self.send_message(
-                "I'm **Tutor**. No chat model is configured "
-                "(*Settings → Jupyternaut Settings*), so I can't free-form chat, "
-                "but I can still scaffold practice notebooks.\n\n" + self._help_text()
+                "I'm **Tutor**. No chat model is configured, so I can't free-form "
+                "chat yet — but I can still scaffold practice notebooks.\n\n"
+                "**To fix it:** open *Settings → Jupyternaut Settings* and pick a "
+                "model. For a local Ollama model use an `ollama_chat/<model>` id — "
+                "e.g. `ollama_chat/gemma4:12b` (run `ollama list` to see what "
+                "you have).\n\n" + self._help_text()
             )
             return
 
@@ -347,7 +398,10 @@ class TutorPersona(BasePersona):
         return (
             "**Tutor — commands**\n\n"
             "- `new <topic>` — scaffold `practice_<topic>.ipynb` from the "
-            "template, with the topic pre-set (e.g. `new list comprehensions`)\n"
+            "template, with the topic pre-set (e.g. `new list comprehensions`). "
+            "If that file already exists it's kept and the new one is written as "
+            "`practice_<topic>_2.ipynb` (`_3`, `_4`, …), so your earlier work is "
+            "never overwritten\n"
             "- `list` — list the course lessons (`lessons/`) and the practice "
             "notebooks in the workspace\n"
             "- `help` — this message\n\n"

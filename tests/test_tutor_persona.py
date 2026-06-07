@@ -11,8 +11,10 @@ whole module is skipped rather than erroring.
 """
 
 import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 PERSONA_PATH = (
     Path(__file__).resolve().parents[1]
@@ -124,6 +126,34 @@ class TestFormatListing(unittest.TestCase):
         self.assertIn("none yet", text)
 
 
+class TestResolveDest(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+
+    def _touch(self, name):
+        (self.dir / name).write_text("{}", encoding="utf-8")
+
+    def test_free_name_used_as_is(self):
+        dest = tutor.resolve_dest(self.dir, "loops")
+        self.assertEqual(dest, self.dir / "practice_loops.ipynb")
+
+    def test_existing_name_is_kept_and_suffixed(self):
+        self._touch("practice_loops.ipynb")
+        dest = tutor.resolve_dest(self.dir, "loops")
+        self.assertEqual(dest, self.dir / "practice_loops_2.ipynb")
+        # the original is untouched (not clobbered)
+        self.assertTrue((self.dir / "practice_loops.ipynb").exists())
+
+    def test_suffix_increments_past_gaps(self):
+        self._touch("practice_loops.ipynb")
+        self._touch("practice_loops_2.ipynb")
+        self._touch("practice_loops_3.ipynb")
+        dest = tutor.resolve_dest(self.dir, "loops")
+        self.assertEqual(dest, self.dir / "practice_loops_4.ipynb")
+
+
 class TestSetTopic(unittest.TestCase):
     @staticmethod
     def _nb(source_lines):
@@ -165,6 +195,39 @@ class TestSetTopic(unittest.TestCase):
             nb["cells"][0]["source"][0],
             'TOPIC = "generators"  # scaffolded by Tutor\n',
         )
+
+
+class TestConfigManagerLookup(unittest.TestCase):
+    """
+    Regression: a persona's `parent` is the PersonaManager, and `serverapp`
+    lives one level further up, on the PersonaManagerExtension. The lookup
+    must walk the parent chain — reading `self.parent.serverapp` directly
+    raises (swallowed) and made @Tutor report "no chat model is configured"
+    even with a model set. `_config_manager` only touches `self.parent`, so
+    it can be exercised unbound with a stand-in object chain.
+    """
+
+    @staticmethod
+    def _persona_with_chain():
+        sentinel = object()  # stands in for the ConfigManager
+        extension = SimpleNamespace(  # PersonaManagerExtension: has serverapp
+            serverapp=SimpleNamespace(
+                web_app=SimpleNamespace(
+                    settings={"jupyternaut.config_manager": sentinel}
+                )
+            ),
+            parent=None,
+        )
+        manager = SimpleNamespace(parent=extension)  # PersonaManager: no serverapp
+        return SimpleNamespace(parent=manager), sentinel
+
+    def test_found_on_grandparent_extension(self):
+        persona, sentinel = self._persona_with_chain()
+        self.assertIs(tutor.TutorPersona._config_manager(persona), sentinel)
+
+    def test_no_serverapp_anywhere_returns_none(self):
+        persona = SimpleNamespace(parent=SimpleNamespace(parent=None))
+        self.assertIsNone(tutor.TutorPersona._config_manager(persona))
 
 
 if __name__ == "__main__":
