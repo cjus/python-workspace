@@ -2,7 +2,8 @@
 
 *A product-manager's map of how a real person travels through this workspace —
 from first encounter to finished course — and where they delight, stumble, or
-quit.* Last reviewed: June 2026.
+quit.* Last reviewed: June 2026 — backlog items addressed June 2026; see the
+Status column in [Gap analysis & opportunity backlog](#gap-analysis--opportunity-backlog).
 
 This document is for the **maintainer** and **future contributors/teachers**.
 It is not a student doc and not a teacher doc — those are
@@ -38,6 +39,7 @@ quitting. So the recurring question at each stage is: **does this stage earn an
 - [Unused Jupyter AI features (free wins)](#unused-jupyter-ai-features-free-wins)
 - [What already works — delights to preserve](#what-already-works--delights-to-preserve)
 - [Success metrics](#success-metrics)
+- [Baselines, targets & validation](#baselines-targets--validation)
 
 ---
 
@@ -157,9 +159,10 @@ two large downloads back-to-back** before anything visible happens.
   waiting on a hang. Separately, a busy **port 8888** has no handling or
   troubleshooting row; the launcher just `exec`s Lab.
 - **Long, serial TTFS.** The two big downloads run back-to-back with no hint
-  they could overlap. The default's real size (~7.6 GB) is buried inside the
-  "4–18 GB" worst-case range ([`../SETUP.md`](../SETUP.md):59), so learners
-  over-estimate.
+  they could overlap. The default's real size — `gemma4:12b` ~7.6 GB
+  ([`./TEACHERS-GUIDE.md`](./TEACHERS-GUIDE.md):78) — is never shown to the
+  learner in SETUP, which only gives the "4–18 GB" worst-case range
+  ([`../SETUP.md`](../SETUP.md):58, 180), so learners over-estimate.
 
 **Opportunities:** flip both launcher tips to `ollama_chat/`; add a one-line
 mac `cd` explainer (or ship a double-clickable launcher); add a RAM warning and
@@ -237,23 +240,29 @@ Shift+Enter, do the **🖊️ Your turn** exercises, check the
   ([`../lessons/README.md`](../lessons/README.md):38–40; e.g. `lessons/05-…`
   ends with `@Tutor new functions`). A footer-skipper can finish all eight
   weeks and never use the product's reason for existing.
-- **The week-6 motivation cliff.** Lesson 6 is the first lesson with **no
-  chart or game payoff** (verified: 0 matplotlib/plot cells), centers on red
-  error text, and its longest section is `## 4. try / except (~15 min)`. Two of
-  its exercises are copy-and-fix bug hunts (`lessons/06-…` cells `91a79e20`,
-  `aed0a850`). It lands exactly where drop-off science says motivation sags.
-  The "errors are not failures" reframe is good, but the session ends visually
-  unrewarding.
+- **The week-6 motivation cliff.** Lesson 6 has **no chart or game payoff**
+  (verified: 0 matplotlib/plot cells — true of lessons 2–7, but it matters most
+  here), centers on red error text, and its longest section is
+  `## 4. try / except … (~15 min)`. Its one copy-and-fix bug hunt
+  (`lessons/06-…` markdown `91a79e20` / code cell `b45a54d4`, the
+  `count_long_words` snippet) plus a fill-in-TODO "Your turn" (`aed0a850`,
+  `safe_divide`) keep the whole session in error-handling territory. It lands
+  exactly where drop-off science says motivation sags. The "errors are not
+  failures" reframe is good, but the session ends visually unrewarding.
 - **Lessons 3 & 4 are overstuffed for 45 minutes.** Lesson 3 packs booleans,
   comparisons, `if/elif/else`, `and/or/not`, and `while` into sections summing
   to ~41 min before slack (`## 2.`–`## 5.` = 8+14+7+10). Lesson 4 even labels
   itself a "big one" and crams lists, `for`, `range`, and four loop patterns
   into 2+12+12+12+3 min covering ~10 ideas. No slack for a slower learner.
-- **Fix-the-bug needs an untaught skill.** Most bug exercises ask the learner
-  to copy commented lines into a *new cell* and remove the `#` marks
-  (`lessons/06-…` cell `aed0a850`; same pattern in 04 and 07) — but
-  **"add a cell" is never taught**; Lesson 1 only teaches Shift+Enter
-  (verified: no "press B" / "add a cell" instruction in `lessons/01-…`).
+- **Fix-the-bug is a retype-from-comments chore.** The bug exercises ask the
+  learner to retype/uncomment the broken lines in the editable area *already
+  provided in the same cell* and remove the `#` marks (`lessons/04-…` cell
+  `c30d84bf`, `lessons/06-…` cell `b45a54d4`, `lessons/07-…` cell `409f5f43`;
+  each ships a TODO placeholder + runnable `print(...)`). So no new-cell skill
+  is strictly required — but it is still fiddly, and worth noting that "add a
+  cell" is never taught either: Lesson 1 only teaches Shift+Enter (verified: no
+  "press B" / "add a cell" instruction in `lessons/01-…`), so any exercise that
+  *did* need a fresh cell would strand the learner.
 
 **Opportunities:** answer key on every Your-turn; one in-flow AI moment early
 (e.g. a Lesson 2 `%%ai` "explain this", or `%ai fix` in Lesson 6); a small
@@ -267,28 +276,32 @@ add a cell" once in Lesson 1, or ship broken code in an editable cell.
 **Touchpoints:** the chat panel,
 [`../.jupyter/personas/tutor_persona.py`](../.jupyter/personas/tutor_persona.py),
 `practice_template.ipynb`. **Emotional curve:** curious → *delight (a notebook
-made just for me)* → *(risk: silent `%%ai` failure)* → either momentum or
-let-down.
+made just for me)* → *(risk: `%%ai` fails until the alias is hand-edited)* →
+either momentum or let-down.
 
 **What they do:** type `@Tutor new <topic>` (e.g. `@Tutor new loops`), open the
 scaffolded `practice_<topic>.ipynb`, Run All, attempt the exercises, ask for
 AI review. The loop is *explanation → exercises → attempt → review.*
 
 **Delight (preserve):** The generated exercises are deliberately
-**solution-free** — the persona docstring and template both emphasize
-protecting learner authorship
-([`../.jupyter/personas/tutor_persona.py`](../.jupyter/personas/tutor_persona.py):37–41).
+**solution-free** — the template's `exercises-ai` cell instructs the model to
+"Create exactly 3 practice exercises … Do NOT include solutions or hints"
+(`practice_template.ipynb`), protecting learner authorship.
 The command layer is also robust by design: `new`/`list`/`help` run
 *deterministically in Python* and never depend on a small model emitting a
 correct tool call.
 
 **Friction & drop-off risk:**
-- **The alias is hard-wired to one specific model.** `practice_template.ipynb`'s
-  `ai-setup` cell runs `%ai alias tutor ollama_chat/gemma4:12b` — fine if the
-  learner pulled the default, but a learner on `llama3.2` or any other model
-  gets a **silent `%%ai` failure** unless they hand-edit the line. The headline
-  @Tutor promise becomes a first-try let-down, and only `welcome.ipynb` ever
-  taught the alias concept. (The persona's no-model fallback at
+- **The alias needs a manual edit on any non-default model.**
+  `practice_template.ipynb`'s `ai-setup` cell runs
+  `%ai alias tutor ollama_chat/gemma4:12b`. The cell *does* document the fix
+  inline — a comment directly above the line says "Change the model to any name
+  from `ollama list` (keep the `ollama_chat/` prefix)," with a worked MLX
+  example — so this is documented friction, not a silent trap. But a learner on
+  `llama3.2` or any other model still has to spot that note, edit one line, and
+  Run All before `%%ai` works; a beginner who skips the comment gets a let-down
+  on the first try. Only `welcome.ipynb` ever taught the alias concept. (The
+  persona's no-model fallback at
   [`tutor_persona.py`](../.jupyter/personas/tutor_persona.py):310–316 is
   graceful but doesn't hand the learner the exact `ollama_chat/` id to fix it.)
 - **Silent overwrite.** `@Tutor new variables` writes `practice_variables.ipynb`
@@ -353,9 +366,18 @@ and the reassurance that the workspace and tutor persist.
 **Delight (preserve):** A strong, non-abandoning close — concrete next projects
 annotated with the tools they use, plus persistence reassurance.
 
+**Friction & drop-off risk:** the **post-week-8 cliff.** This is the one stage
+with no measured outcome: the course ends with starter projects and links but
+**no next-cohort hook, no recurring touchpoint, and nothing that pulls Maya back
+in week 9**. The funnel's thesis is completion *and persistence*, yet the back
+end is entirely unmeasured — once the eight notebooks are done, whether anyone
+keeps using the workspace is invisible.
+
 **Opportunity:** small add — per-project difficulty/time labels. This is also
 the natural seat for any **cohort / streak / accountability** layer, which the
-drop-off research says is what lifts completion from the self-paced baseline.
+drop-off research says is what lifts completion from the self-paced baseline;
+pair it with a post-course continuation signal (metric 13) so the lever is
+measurable.
 
 ---
 
@@ -367,7 +389,7 @@ The product's reason for existing, spelled out as the learner experiences it:
    (`lessons/0N-…`).
 2. **She gets stuck** — code errors, or she's unsure her answer is right.
 3. **She opens the chat** and either asks @Tutor a question, or asks
-   @Jupyternaut *"what does this error mean?"* ([`../README.md`](../README.md):74–76).
+   @Jupyternaut *"what does this error mean?"* ([`../README.md`](../README.md):82–84).
 4. **She wants structured practice**, so she types `@Tutor new loops`. The
    persona deterministically copies `practice_template.ipynb`, rewrites the
    `TOPIC = …` line, and writes `practice_loops.ipynb`
@@ -435,25 +457,31 @@ the sources behind the synthesis.
 ## Gap analysis & opportunity backlog
 
 Prioritized by horizon (now / next / later), with impact and effort. "Now"
-items are cheap, high-impact, and unblock the primary persona.
+items are cheap, high-impact, and unblock the primary persona. **Within a
+horizon**, rows are ordered by impact first, then ascending effort (smallest
+unblock-the-most fix wins ties). See [Baselines, targets &
+validation](#baselines-targets--validation) for the effort-sizing key and per-row
+owners. The [Unused Jupyter AI features](#unused-jupyter-ai-features-free-wins)
+below are scoped/cross-referenced into this backlog rather than ranked
+separately.
 
-| # | Gap | Stage | Persona | Impact | Effort | Horizon |
-|---|-----|-------|---------|--------|--------|---------|
-| 1 | Launcher's closing tip steers to the broken `ollama/` prefix the docs warn against (`start.sh`:102, `start.ps1`:179) | 1 | Sam | High | Small | **Now** |
-| 2 | "Your turn" exercises have no answer key/self-check; solo learner can't verify (`lessons/02-…` `3c6c7c71` vs the good `# should print` in `lessons/05-…`) | 3 | Maya | High | Medium | **Now** |
-| 3 | Headline AI features only in optional "After class" footers — 0 `%%ai` cells in any lesson body; never experienced in-flow | 3/4 | Maya | High | Medium | **Now** |
-| 4 | welcome.ipynb tour never links `lessons/` or Lesson 1 (cell `next-md`) | 2 | Maya | Medium | Small | **Now** |
-| 5 | Capstone game's interactive `play_live` is commented out; solo learner only watches a demo (`lessons/08-…` `ec677d7d`) | 5 | Maya | Medium | Small | **Now** |
-| 6 | No RAM check + no port-8888 handling; "slow is normal" masks a hang (`start.sh`/`start.ps1`; `SETUP.md`:177) | 1 | Sam | High | Medium | Next |
-| 7 | `@Tutor` `SYSTEM_PROMPT` is generic, not Socratic — no hints-not-answers guardrail (`tutor_persona.py`:65–98) | 4 | Mr. Lee | High | Small | Next |
-| 8 | Practice template alias hard-wired to `gemma4:12b`; silent `%%ai` failure on any other model (`practice_template.ipynb` `ai-setup`) | 4 | Maya | Medium | Medium | Next |
-| 9 | `@Tutor new` silently overwrites a prior practice notebook (`tutor_persona.py`:266–272) | 4 | Maya | Medium | Small | Next |
-| 10 | Fix-the-bug needs untaught "add a cell" skill + fiddly copy-paste (`lessons/06-…` `aed0a850`; Lesson 1 never teaches add-cell) | 3 | Maya | Medium | Medium | Next |
-| 11 | Lesson 6 motivation cliff — no visual/game payoff at the 2/3 drop-off point (0 plot cells; `## 4 …(~15 min)`) | 3 | Maya | Medium | Small | Next |
-| 12 | Long, serial TTFS — two big downloads back-to-back; default's real size (~7.6 GB) hidden in "4–18 GB" | 1 | Sam | Medium | Small | Next |
-| 13 | macOS setup assumes `cd`; no double-click mac launcher (`SETUP.md`:87–90) | 1 | Sam | Medium | Small | Next |
-| 14 | No AI-fallibility warning anywhere (welcome / template / tutor's first reply) | 2/4 | Maya | Medium | Small | Next |
-| 15 | Lessons 3 & 4 overstuffed for 45 min; mark densest pieces as skippable stretch goals | 3 | Maya | Medium | Small | Later |
+| # | Gap | Stage | Persona | Impact | Effort | Horizon | Status |
+|---|-----|-------|---------|--------|--------|---------|--------|
+| 1 | Launcher's closing tip steers to the broken `ollama/` prefix the docs warn against (`start.sh`:102, `start.ps1`:179) | 1 | Sam | High | Small | **Now** | ✅ Shipped (Jun 2026) |
+| 2 | "Your turn" exercises have no answer key/self-check; solo learner can't verify (`lessons/02-…` `3c6c7c71` vs the good `# should print` in `lessons/05-…`) | 3 | Maya | High | Medium | **Now** | ✅ Shipped (Jun 2026) |
+| 3 | Headline AI features only in optional "After class" footers — 0 `%%ai` cells in any lesson body; never experienced in-flow | 3/4 | Maya | High | Medium | **Now** | ◐ Partial — in-flow "🤖 Ask your tutor" markdown moments added to Lessons 1–3 & 6 only; 4/5/7/8 still AI-free in-flow, and live `%%ai` stays commented out to keep Run-All offline |
+| 4 | welcome.ipynb tour never links `lessons/` or Lesson 1 (cell `next-md`) | 2 | Maya | Medium | Small | **Now** | ✅ Shipped (Jun 2026) |
+| 5 | Capstone game's interactive `play_live` is commented out; solo learner only watches a demo (`lessons/08-…` `ec677d7d`) | 5 | Maya | Medium | Small | **Now** | ✅ Shipped (Jun 2026) |
+| 6 | No RAM check + no port-8888 handling; "slow is normal" masks a hang (`start.sh`/`start.ps1`; `SETUP.md`:177) | 1 | Sam | High | Medium | Next | ✅ Shipped (Jun 2026) |
+| 7 | `@Tutor` `SYSTEM_PROMPT` is generic, not Socratic — no hints-not-answers guardrail (`tutor_persona.py`:65–98) | 4 | Mr. Lee | High | Small | Next | ✅ Shipped (Jun 2026) |
+| 8 | Practice template alias defaults to `gemma4:12b`; needs a one-line hand-edit + Run All on any other model (inline note exists but a beginner may skip it) (`practice_template.ipynb` `ai-setup`) | 4 | Maya | Medium | Medium | Next | ✅ Shipped (Jun 2026) |
+| 9 | `@Tutor new` silently overwrites a prior practice notebook (`tutor_persona.py`:266–272) | 4 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
+| 10 | Fix-the-bug is a fiddly retype-from-comments chore in an in-cell editable area (`lessons/06-…` `b45a54d4`, also 04 `c30d84bf` / 07 `409f5f43`); and "add a cell" is never taught (Lesson 1 only teaches Shift+Enter) | 3 | Maya | Medium | Medium | Next | ◐ Partial — "add a cell" (press B / + toolbar) now taught in Lesson 1 and a drag-into-chat stuck-nudge added to every Fix-the-bug; the in-cell retype-from-comments format itself is unchanged |
+| 11 | Lesson 6 motivation cliff — no visual/game payoff at the 2/3 drop-off point (0 plot cells; `## 4. try / except … (~15 min)`) | 3 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
+| 12 | Long, serial TTFS — two big downloads back-to-back; default's real size (`gemma4:12b` ~7.6 GB, `TEACHERS-GUIDE.md`:78) never shown to the learner, only the "4–18 GB" range | 1 | Sam | Medium | Small | Next | ✅ Shipped (Jun 2026) |
+| 13 | macOS setup assumes `cd`; no double-click mac launcher (`SETUP.md`:87–90) | 1 | Sam | Medium | Small | Next | ✅ Shipped (Jun 2026) |
+| 14 | No AI-fallibility warning anywhere (welcome / template / tutor's first reply) | 2/4 | Maya | Medium | Small | Next | ✅ Shipped (Jun 2026) |
+| 15 | Lessons 3 & 4 overstuffed for 45 min; mark densest pieces as skippable stretch goals | 3 | Maya | Medium | Small | Later | ◐ Partial — densest pieces marked skippable stretch goals in both lessons; underlying content not actually slimmed |
 
 ---
 
@@ -462,15 +490,19 @@ items are cheap, high-impact, and unblock the primary persona.
 Capabilities the repo already has installed/enabled but doesn't surface — each
 is mostly a *doc + one demo cell*, not new infrastructure.
 
-| Feature | What it is | Why it matters here |
-|---------|-----------|---------------------|
-| `%ai fix` + `Err[n]` / `In[n]` / `Out[n]` refs | v3 magics auto-explain the last error and let prompts reference prior cells | A built-in "explain my error" tutor that maps exactly onto **Lesson 6** and a beginner's #1 need. Zero copy-paste. The Teacher's Guide documents `-f` and aliases (`TEACHERS-GUIDE.md`:220–225) but never `%ai fix`. <https://jupyter-ai.readthedocs.io/en/v3/users/magic_commands/index.html> |
-| `{variable}` interpolation into `%%ai` | Prompts can interpolate Python values, e.g. `{Err[1]}` or `{df.head()}` | Lets a learner feed *actual* data/errors into a prompt, and makes the template's `{TOPIC}` robust rather than version-dependent. |
-| Chat context attachments (`@file:<path>`, drag a file **or a cell**, paperclip) | v3's no-embeddings successor to `/learn`; personas read the attached context | **Highest-leverage beginner add:** drag the broken cell into chat and ask "why is this wrong?" — directly fixes the "@Tutor can't read the notebook" gap. <https://jupyter-ai.readthedocs.io/en/v3/users/index.html> |
-| Notebook tools (MCP) + code-toolbar (insert-as-cell / replace / explain active cell) | Personas can act on the active notebook; MCP is already ON in this repo (`TEACHERS-GUIDE.md`:216–219) | Turns chat answers into runnable code in one click. The guide under-sells it as an advanced "demonstrate once" aside. |
-| Socratic `SYSTEM_PROMPT` (hint ladder, one diagnostic question, self-explanation) | Not a Jupyter-AI feature — the one file the repo fully controls | The highest-leverage AI change; a few imperative lines convert a generic chatbot into a tutor that preserves authorship. <https://arxiv.org/pdf/2506.19107> |
-| Assert-based "check my work" cells (NBgrader/PyEvalAI pattern) | A lightweight test cell that runs first, *then* asks the model | Closes the biggest solo-learner feedback gap (no answer key). Full NBgrader is overkill; a few asserts in the template + lessons is proportionate. <https://arxiv.org/abs/2502.18425> |
-| ⚠️ Inline ghost-text autocomplete — **NOT in v3** | jupyter-ai's inline completer is disabled in v3 pending a LiteLLM refactor (issue #1431) | Expectation correction: don't hunt for a toggle that doesn't exist. For as-you-type completion the real path is a separate extension (jupyterlite/ai, Notebook Intelligence). Worth one line in the Teacher's Guide. <https://github.com/jupyterlab/jupyter-ai/issues/1431> |
+The last column ranks each (Impact / Effort / Horizon) on the same scale as the
+backlog and points to the numbered gap it serves, so these aren't a separate
+unranked list.
+
+| Feature | What it is | Why it matters here | Impact / Effort / Horizon (→ backlog #) |
+|---------|-----------|---------------------|-----------------------------------------|
+| `%ai fix` + `Err[n]` / `In[n]` / `Out[n]` refs | v3 magics auto-explain the last error and let prompts reference prior cells | A built-in "explain my error" tutor that maps exactly onto **Lesson 6** and a beginner's #1 need. Zero copy-paste. The Teacher's Guide documents `-f` and aliases (`TEACHERS-GUIDE.md`:262–267) but never `%ai fix`. <https://jupyter-ai.readthedocs.io/en/v3/users/magic_commands/index.html> | High / Medium / Now (→ #3, #11) · ✅ Shipped (Jun 2026, doc) — "Three v3 magics worth teaching" added to the Teacher's Guide |
+| `{variable}` interpolation into `%%ai` | Prompts can interpolate Python values, e.g. `{Err[1]}` or `{df.head()}` | Lets a learner feed *actual* data/errors into a prompt, and makes the template's `{TOPIC}` robust rather than version-dependent. | Medium / Small / Next (→ #3, #8) · ✅ Shipped (Jun 2026, doc) — covered in the Teacher's Guide magics subsection |
+| Chat context attachments (`@file:<path>`, drag a file **or a cell**, paperclip) | v3's no-embeddings successor to `/learn`; personas read the attached context | **Highest-leverage beginner add:** drag the broken cell into chat and ask "why is this wrong?" — directly fixes the "@Tutor can't read the notebook" gap. <https://jupyter-ai.readthedocs.io/en/v3/users/index.html> | High / Small / Now (→ Stage 4 "@Tutor can't read the open notebook") · ✅ Shipped (Jun 2026, doc) — Teacher's Guide attachments bullet plus drag-a-cell pointers in welcome.ipynb, the lessons, and `lessons/README.md` |
+| Notebook tools (MCP) + code-toolbar (insert-as-cell / replace / explain active cell) | Personas can act on the active notebook; MCP is already ON in this repo (`TEACHERS-GUIDE.md`:256–260) | Turns chat answers into runnable code in one click. The guide under-sells it as an advanced "demonstrate once" aside. | Medium / Small / Later (→ #3) · Open — still the pre-existing MCP under-sell; no new code-toolbar surfacing |
+| Socratic `SYSTEM_PROMPT` (hint ladder, one diagnostic question, self-explanation) | Not a Jupyter AI feature — the one file the repo fully controls | The highest-leverage AI change; a few imperative lines convert a generic chatbot into a tutor that preserves authorship. <https://arxiv.org/pdf/2506.19107> | High / Small / Next (= #7) · ✅ Shipped (Jun 2026) — Socratic hints-not-answers ladder added to `SYSTEM_PROMPT` |
+| Assert-based "check my work" cells (NBgrader/PyEvalAI pattern) | A lightweight test cell that runs first, *then* asks the model | Closes the biggest solo-learner feedback gap (no answer key). Full NBgrader is overkill; a few asserts in the template + lessons is proportionate. <https://arxiv.org/abs/2502.18425> | High / Medium / Now (= #2) · ◐ Partial — the answer-key gap (#2) is closed via collapsible "✅ Check your answer" reveals in all 8 lessons, not auto-running assert cells |
+| ⚠️ Inline ghost-text autocomplete — **NOT in v3** | jupyter-ai's inline completer is disabled in v3 pending a LiteLLM refactor (issue #1431) | Expectation correction: don't hunt for a toggle that doesn't exist. For as-you-type completion the real path is a separate extension (jupyterlite/ai, Notebook Intelligence). Worth one line in the Teacher's Guide. <https://github.com/jupyterlab/jupyter-ai/issues/1431> | Low / Small / Later (doc-only) · ✅ Shipped (Jun 2026, doc) — expectation-correction bullet added to the Teacher's Guide |
 
 ---
 
@@ -496,8 +528,9 @@ Treat these as regression-risk: they are doing the heavy lifting.
 8. **Capstone construction** — labeled steps a–g, a "make it yours" step, and a
    journey bar chart.
 9. **Solution-withholding practice template** — exercises generated *without*
-   solutions, protecting learner authorship
-   ([`tutor_persona.py`](../.jupyter/personas/tutor_persona.py):37–41).
+   solutions ("Do NOT include solutions or hints" in the template's
+   `exercises-ai` cell, `practice_template.ipynb`), protecting learner
+   authorship.
 10. **Deterministic command layer** — `new`/`list`/`help` run in Python, never
     relying on small-model tool calls.
 11. **On-mission architecture** — local-first/private via Ollama (no keys, no
@@ -508,38 +541,125 @@ Treat these as regression-risk: they are doing the heavy lifting.
 
 ## Success metrics
 
-This is a **local-first product with no telemetry**, so these are framed as
-*instrumentable-locally and privacy-respecting* — measurable in a pilot/cohort
-(Mr. Lee's class, a self-report survey, or opt-in local logs), never by
-phoning home.
+This is a **local-first product with no telemetry**, so there is no
+auto-instrumentation. Each metric below names *how* it would actually be
+collected — **(local log)** = an opt-in `~/.python-workspace` activity log a
+pilot cohort agrees to share; **(facilitator)** = Mr. Lee observes/stopwatches
+in a session; **(survey)** = a self-report form. Nothing phones home. Two
+metrics are explicitly *not* auto-measurable and are tagged accordingly.
 
-1. **Time-to-first-success (TTFS).** Minutes from clone to the first green
-   checkmark in welcome.ipynb's env-check — and *separately* to the first
-   successful AI reply (the slower, gated path). Track both medians and the two
-   large-download stalls.
+1. **Time-to-first-success (TTFS).** Minutes to the first green checkmark in
+   welcome.ipynb's env-check, and *separately* to the first successful AI reply.
+   *Collection:* the **in-Lab** segments are **(local log)** once a cell runs;
+   the **pre-Lab** segment (clone → Ollama install → multi-GB pull, before any
+   instrumentable surface exists) is **(facilitator)** stopwatch or **(survey)**
+   only — not auto-instrumentable.
 2. **Setup completion rate** with funnel drop-off per gated step (Python
    install → Ollama → model pull → launcher → model selection). Watch the
    model-prefix step specifically (the `ollama/` vs `ollama_chat/` blocker).
+   *Collection:* **(facilitator)** / **(survey)** — these steps are pre-Lab.
 3. **First-session activation** — % who run ≥1 code cell *and* make one
    successful AI interaction in session 1 (the ~14× completion predictor).
+   *Collection:* **(local log)**.
 4. **Lesson-by-lesson completion (1→8)** with explicit attention to the
-   weeks-2→3 attrition cliff and the Lesson 6 dip.
+   weeks-2→3 attrition cliff and the Lesson 6 dip. *Collection:* **(local log)**
+   (cells run per lesson notebook) or **(survey)**.
 5. **Eight-week completion rate** vs. the self-paced baseline (~7–13%); set a
    stretch target nearer cohort/active-discussion rates *if* an accountability
-   layer is added.
+   layer is added. *Collection:* **(facilitator)** / **(survey)**.
 6. **AI-feature reach** — % who use @Tutor, @Jupyternaut, or a `%%ai` cell at
-   least once (today this can be **0%** for a footer-skipper).
+   least once (today this can be **0%** for a footer-skipper). *Collection:*
+   **(local log)**.
 7. **Self-check coverage & use** — % of Your-turn cells with an answer
-   key/assert, and % of learners who use them.
+   key/assert (a static repo count), and % of learners who use them
+   **(local log)**.
 8. **@Tutor reliability** — practice-notebook generation success on first
    attempt (model configured + alias healthy) and the rate the "No chat model
-   is configured" fallback fires.
+   is configured" fallback fires. *Collection:* **(local log)**.
 9. **Capstone play-through** — % of solo learners who actually run an
    interactive game (uncomment `play_live`) vs. only watch the demo.
+   *Collection:* **(local log)** / **(survey)**.
 10. **Help-seeking rate** — questions per learner per week; *rising* help-
-    seeking is a positive retention signal.
+    seeking is a positive retention signal. *Collection:* **(local log)**.
 11. **Over-reliance guardrail** — rate of learners *modifying* AI-suggested code
     before running vs. pasting verbatim (automation-bias proxy), once a
-    predict-then-run step exists.
+    predict-then-run step exists. *Collection:* **pilot/survey-only** — capturing
+    chat output, the pasted cell, and edit-then-run timing has **no hook in this
+    stack**, so this is observed in a moderated pilot, not auto-instrumented.
 12. **Runtime-failure incidence** — frequency of RAM-hang and port-conflict
-    events and whether the learner recovered.
+    events and whether the learner recovered. *Collection:* **(facilitator)** /
+    **(survey)**.
+13. **Post-course continuation** — % still using the workspace N weeks after
+    Lesson 8 (any cell run, or a new `practice_*.ipynb` created), measuring the
+    post-week-8 cliff (Stage 6) and any accountability-layer effect.
+    *Collection:* **(survey)** or opt-in **(local log)**.
+
+---
+
+## Baselines, targets & validation
+
+The map above is grounded in the repo and in research, but **no claim here has
+yet been checked against a real learner.** This section makes the gaps in
+evidence explicit so prioritization is falsifiable rather than asserted.
+
+### Baselines & targets
+
+No telemetry exists today, so most baselines are **(est.)** — to be replaced by
+a first pilot cohort (Mr. Lee's class) before any target is treated as real.
+Targets are deliberately rough; the point is a number to move, not precision.
+
+| # | Metric | Baseline (today) | Target | Notes |
+|---|--------|------------------|--------|-------|
+| 1 | TTFS (env-check) | ~10–30 min incl. downloads (est.) | < 5 min in-Lab after pull | pre-Lab segment dominated by the pull, not the product |
+| 2 | Setup completion | unknown (est.) | ≥ 80% reach JupyterLab | model-prefix step is the suspected leak |
+| 3 | First-session activation | unknown (est.) | ≥ 70% run a cell + 1 AI reply | the ~14× completion predictor |
+| 4 | Lesson 1→8 completion | follows ~7–13% self-paced curve (est.) | flatten the weeks-2→3 and L6 dips | per-lesson, not just final |
+| 5 | 8-week completion | ~7–13% (self-paced baseline, cited) | ≥ 30% *with* accountability layer | baseline is the cited research, not measured here |
+| 6 | AI-feature reach | can be **0%** (footer-skipper) | ≥ 90% touch AI by week 2 | direct consequence of gap #3 |
+| 7 | Self-check coverage | shipped — "✅ Check your answer" reveals across all 8 lessons (27 total) | 100% of Your-turn cells | static repo count, measurable now |
+| 8 | @Tutor first-attempt success | unknown (est.) | ≥ 95% on a configured model | gated by the alias edit (gap #8) |
+| 9 | Capstone play-through | likely low — `play_live` commented out | ≥ 60% of solo learners play live | gap #5 |
+| 10 | Help-seeking rate | unknown (est.) | trend *up* week-over-week | rising is the positive signal |
+| 11 | Over-reliance guardrail | unknown (est.) | majority *edit* before running | pilot/survey-only |
+| 12 | Runtime-failure incidence | unknown (est.) | < 10% hit an unrecovered hang/port clash | RAM + port-8888 gaps (#6) |
+| 13 | Post-course continuation | unmeasured | ≥ 25% active at week +4 | the back-end of the funnel |
+
+### Effort-sizing key
+
+Backlog Small/Medium map to rough engineering time (one contributor, familiar
+with the stack):
+
+- **Small** — under ~half a day; a doc/copy edit or a single-cell/single-line
+  change (e.g. #1 flip the launcher tip, #4 add a lessons link).
+- **Medium** — roughly half a day to ~2 days; touches multiple notebooks or
+  needs design/testing across the eight lessons (e.g. #2 answer keys
+  everywhere, #3 in-flow AI moments).
+- **Large** — multi-day / cross-cutting (none in the current backlog; an
+  accountability layer would be the first).
+
+### Ownership (default per horizon)
+
+- **Now** — repo maintainer (you); all five are doc/notebook edits with no
+  persona-behavior risk.
+- **Next** — split: launcher/setup items (#6, #12, #13) → maintainer;
+  AI-behavior items (#7 `SYSTEM_PROMPT`, #8 alias, #9 overwrite) → **Mr. Lee's
+  seat**, since they are edits to the one readable persona file he already owns.
+- **Later** — maintainer, scheduled after a pilot validates the thesis.
+
+### Assumptions & how we'd validate
+
+These are **inferred from docs + research, not yet observed**:
+
+- **The three personas** (Maya / Sam / Mr. Lee) are constructed from what the
+  docs promise and the code does — no real learner has been interviewed.
+  *Validate:* 3–5 user interviews + a watch-them-set-up session before committing
+  "Next"-horizon effort.
+- **The drop-off thesis** (weeks-2→3 cliff, Lesson-6 motivation sag) is imported
+  from general self-paced-MOOC research, not measured on *this* course.
+  *Validate:* run metric 4 (per-lesson completion) on the first cohort and
+  confirm the dips land where predicted before optimizing for them.
+- **"Footer-skippers never use AI"** assumes learners skip the optional "After
+  class" sections. *Validate:* metric 6 against a cohort; if reach is already
+  high, gap #3 drops in priority.
+- **Targets** above are placeholders. *Validate:* set real baselines from the
+  first pilot, then revisit each target.
